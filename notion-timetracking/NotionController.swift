@@ -3,9 +3,11 @@ import Alamofire
 import SwiftyJSON
 import SwiftUI
 
-class NotionController {
-    @ObservedObject var globalSettings = GlobalSettings() // Instantiate GlobalSettings
-    
+class NotionController : ObservableObject {
+    //@ObservedObject var globalSettings = GlobalSettings() // Instantiate GlobalSettings
+    let globalSettings = GlobalSettings.shared
+
+
     var accessToken: String {
         return globalSettings.apiKey // Use apiKey from GlobalSettings
     }
@@ -16,7 +18,7 @@ class NotionController {
     var retryCount: Int = 0
     
     init() {
-        // Initialize and start polling
+        queryOpenTasks()
         self.startPolling()
     }
     
@@ -27,32 +29,41 @@ class NotionController {
     }
     
     func queryOpenTasks() {
-        let headers: HTTPHeaders = [
-            "Authorization": "Bearer \(accessToken)",
-            "Notion-Version": "2021-08-16"
-        ]
-        
-        let parameters: [String: Any] = [
-            "filter": [
-                "and": [
-                    ["property": "Start Time", "date": ["is_not_empty": true]],
-                    ["property": "End Time", "date": ["is_empty": true]]
+            let headers: HTTPHeaders = [
+                "Authorization": "Bearer \(accessToken)",
+                "Notion-Version": "2022-06-28"
+            ]
+            
+            let parameters: [String: Any] = [
+                "filter": [
+                    "and": [
+                        ["property": "StartTime", "date": ["is_not_empty": true]],
+                        ["property": "EndTime", "date": ["is_empty": true]]
+                    ]
                 ]
             ]
-        ]
+        let url = "https://api.notion.com/v1/databases/\(databaseId)/query"
+
+            print("Debug: Full URL: \(url)")  // Debugging statement
+            print("Debug: Headers: \(headers)")  // Debugging statement
+            print("Debug: Parameters: \(parameters)")  // Debugging statement
         
-        AF.request("https://api.notion.com/v1/databases/\(databaseId)/query", method: .post, parameters: parameters, encoding: JSONEncoding.default, headers: headers).responseJSON { response in
-            switch response.result {
-            case .success(let value):
-                let json = JSON(value)
-                self.parseOpenTasks(json: json)
-                self.retryCount = 0 // Reset retry count on successful request
-            case .failure(let error):
-                print("Error: \(error)")
-                self.handleFailure()
+            
+            print("Debug: Starting API call to query open tasks.") // Debugging statement
+            
+        AF.request(url, method: .post, parameters: parameters, encoding: JSONEncoding.default, headers: headers).responseJSON { response in
+                switch response.result {
+                case .success(let value):
+                    let json = JSON(value)
+                    print("Debug: API call successful. Received JSON: \(json)") // Debugging statement
+                    self.parseOpenTasks(json: json)
+                    self.retryCount = 0 // Reset retry count on successful request
+                case .failure(let error):
+                    print("Debug: API call failed. Error: \(error)") // Debugging statement
+                    self.handleFailure()
+                }
             }
         }
-    }
     
     func parseOpenTasks(json: JSON) {
         // Parse the JSON response to extract relevant task data

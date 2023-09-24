@@ -9,6 +9,8 @@ import SwiftUI
 
 struct MainView: View {
     @EnvironmentObject var globalSettings: GlobalSettings
+    @EnvironmentObject var notionController: NotionController
+
     @State private var showingPreferences = false
     
     var body: some View {

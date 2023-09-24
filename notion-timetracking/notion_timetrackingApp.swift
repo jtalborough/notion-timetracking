@@ -8,15 +8,17 @@
 import SwiftUI
 import KeychainSwift  // Make sure to import KeychainSwift
 // Initialize the GlobalSettings object
-let globalSettings = GlobalSettings()
+
 
 @main
 struct notion_timetrackingApp: App {
-    @ObservedObject var globalSettings: GlobalSettings
+    let globalSettings = GlobalSettings.shared
+    var notionController: NotionController
     let keychain = KeychainSwift()
 
     init() {
-        self.globalSettings = GlobalSettings()
+        self.notionController = NotionController()
+
         loadFromKeychain()
     }
 
@@ -24,6 +26,7 @@ struct notion_timetrackingApp: App {
         WindowGroup {
             MainView()
                 .environmentObject(globalSettings)
+                .environmentObject(notionController)
         }
     }
 
