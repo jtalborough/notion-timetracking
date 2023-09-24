@@ -30,17 +30,12 @@ struct notion_timetrackingApp: App {
     func loadFromKeychain() {
         if let savedApiKey = keychain.get("apiKey"), let savedDatabaseId = keychain.get("databaseId") {
             self.globalSettings.apiKey = savedApiKey
-            self.globalSettings.databaseId = savedDatabaseId
+            self.globalSettings.TimeTrackingDatatbaseId = savedDatabaseId
         }
     }
 }
 
 
-
-class GlobalSettings: ObservableObject {
-    @Published var apiKey: String = ""
-    @Published var databaseId: String = ""
-}
 
 
 struct TaskListView: View {

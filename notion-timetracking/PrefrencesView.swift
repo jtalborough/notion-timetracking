@@ -9,7 +9,7 @@ struct PreferencesView: View {
         VStack {
             Form {
                 TextField("API Key", text: $globalSettings.apiKey)
-                TextField("Database ID", text: $globalSettings.databaseId)
+                TextField("Database ID", text: $globalSettings.TimeTrackingDatatbaseId)
                 Button("Save") {
                     saveToKeychain()
                 }
@@ -27,7 +27,7 @@ struct PreferencesView: View {
 
             // Use globalSettings.apiKey and globalSettings.databaseId
             if let apiKeyData = self.globalSettings.apiKey.data(using: .utf8),
-               let databaseIdData = self.globalSettings.databaseId.data(using: .utf8) {
+               let databaseIdData = self.globalSettings.TimeTrackingDatatbaseId.data(using: .utf8) {
                 print("Data conversion successful")  // Add this line
                 keychain.save(apiKeyData, service: "NotionTimeTracking", account: "apiKey")
                 keychain.save(databaseIdData, service: "NotionTimeTracking", account: "databaseId")
