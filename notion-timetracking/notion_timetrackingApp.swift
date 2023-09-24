@@ -17,9 +17,10 @@ struct notion_timetrackingApp: App {
     let keychain = KeychainSwift()
 
     init() {
-        self.notionController = NotionController()
-
+        notionController = NotionController()
         loadFromKeychain()
+        notionController.queryOpenTasks()
+
     }
 
     var body: some Scene {

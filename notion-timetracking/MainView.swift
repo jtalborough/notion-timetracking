@@ -16,7 +16,35 @@ struct MainView: View {
     var body: some View {
         ZStack {
             VStack {
+                // Display current task and time used
+                if let currentEntry = notionController.currentOpenTimeEntry {
+                    Text("Current Task: \(currentEntry.taskName)")
+                        .font(.title)
+                    
+                    Text("Time Used: \(String(format: "%", currentEntry.timeUsed))")
+                        .font(.subheadline)
+                } else {
+                    Text("No current task.")
+                        .font(.title)
+                }
+                Button(action: {
+                    // Your logic for ending the time entry
+                    notionController.updateTaskInDatabase(timeEntry: notionController.currentOpenTimeEntry!) { success in
+                        if success {
+                            print("Debug: Successfully updated the task in the database.")
+                        } else {
+                            print("Debug: Failed to update the task in the database.")
+                        }
+                    }
+                }) {
+                    Text("End")
+                        .font(.title)
+                        .foregroundColor(.red)
+                }
+                .padding()
+                
                 Spacer()
+                
                 HStack {
                     Spacer()
                     Button(action: {
@@ -33,12 +61,15 @@ struct MainView: View {
             }
             
             if showingPreferences {
-                        PreferencesView(showingPreferences: $showingPreferences)
-                            .environmentObject(globalSettings)
-                    }
+                PreferencesView(showingPreferences: $showingPreferences)
+                    .environmentObject(globalSettings)
+            }
         }
     }
 }
+
+
+
 
 
 
