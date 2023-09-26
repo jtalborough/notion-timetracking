@@ -9,7 +9,8 @@ struct PreferencesView: View {
         VStack {
             Form {
                 TextField("API Key", text: $globalSettings.apiKey)
-                TextField("Database ID", text: $globalSettings.TimeTrackingDatatbaseId)
+                TextField("Time Tracking Database ID", text: $globalSettings.TimeTrackingDatatbaseId)
+                TextField("Task Database ID", text: $globalSettings.TaskDatatbaseId)
                 Button("Save") {
                     saveToKeychain()
                 }
@@ -26,11 +27,18 @@ struct PreferencesView: View {
             let keychain = KeychainHelper.standard
 
             // Use globalSettings.apiKey and globalSettings.databaseId
-            if let apiKeyData = self.globalSettings.apiKey.data(using: .utf8),
-               let databaseIdData = self.globalSettings.TimeTrackingDatatbaseId.data(using: .utf8) {
-                print("Data conversion successful")  // Add this line
+            if let apiKeyData = self.globalSettings.apiKey.data(using: .utf8)
+            {
                 keychain.save(apiKeyData, service: "NotionTimeTracking", account: "apiKey")
-                keychain.save(databaseIdData, service: "NotionTimeTracking", account: "databaseId")
+            }
+            
+            if   let timeTrackingDatabaseId = self.globalSettings.TimeTrackingDatatbaseId.data(using: .utf8)
+            {
+                keychain.save(timeTrackingDatabaseId, service: "NotionTimeTracking", account: "timeTrackingDatabaseId")
+            }
+            if let taskDatabaseId = self.globalSettings.TaskDatatbaseId.data(using: .utf8)
+            {
+                keychain.save(taskDatabaseId, service: "NotionTimeTracking", account: "taskDatabaseId")
             }
 
             DispatchQueue.main.async {

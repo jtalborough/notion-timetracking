@@ -11,5 +11,6 @@ class GlobalSettings: ObservableObject {
     static let shared = GlobalSettings()
     @Published var apiKey: String = ""
     @Published var TimeTrackingDatatbaseId: String = ""
+    @Published var TaskDatatbaseId: String = ""
 }
 
