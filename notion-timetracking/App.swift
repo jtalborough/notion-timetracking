@@ -19,7 +19,8 @@ struct notion_timetrackingApp: App {
     init() {
         notionController = NotionController()
         loadFromKeychain()
-        notionController.queryOpenTasks()
+        notionController.GetOpenTasks()
+        notionController.GetOpenTimeTickets()
 
     }
 
@@ -33,7 +34,7 @@ struct notion_timetrackingApp: App {
         MenuBarExtra("TEST", systemImage: "star")
         {
             MenubarView().environmentObject(notionController)
-        }
+        }.menuBarExtraStyle(.window)
     }
 
     func loadFromKeychain() {
