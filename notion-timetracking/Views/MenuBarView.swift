@@ -30,7 +30,7 @@ struct MenubarView: View {
             Divider()
                         
             ForEach(notionController.tasks,id: \.id) { task in
-                MenuBarTaskRowView(task: task)
+                MenuBarTaskRowView(task: task, isMenuPresented: $isMenuPresented)
             }
         }                
     }
@@ -40,6 +40,7 @@ struct MenuBarTaskRowView: View {
     let task: Task
     @Environment(\.openURL) var openURL
     @EnvironmentObject var notionController: NotionController
+    @Binding var isMenuPresented: Bool
     
     var body: some View {
         VStack(alignment: .leading, spacing: 5) {
@@ -47,6 +48,7 @@ struct MenuBarTaskRowView: View {
                 Button(action: {
                     let url = URL(string: task.url!)
                     openURL(url!)
+                    isMenuPresented = false
                 }) {
                     Text(task.title)
                             .frame(minWidth: 0, maxWidth: .infinity, alignment: .leading)
@@ -57,6 +59,9 @@ struct MenuBarTaskRowView: View {
                 
                 Button("Start") {
                     notionController.startNewTimeEntry(task: task)
+                    let url = URL(string: task.url!)
+                    openURL(url!)
+                    isMenuPresented = false
                 }
             }.frame(minWidth: 556)
         }
@@ -64,9 +69,6 @@ struct MenuBarTaskRowView: View {
         .cornerRadius(5)
         .padding(.vertical, 1)
         .background(Color(NSColor.windowBackgroundColor))
-
-
-
 
     }
 }
