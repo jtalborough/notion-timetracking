@@ -3,10 +3,12 @@
 import Foundation
 import SwiftUI
 import SwiftyJSON
+import MenuBarExtraAccess
 
 class NotionController: ObservableObject {
     let globalSettings = GlobalSettings.shared
     let notionAPI = NotionAPI()
+    @Environment(\.openURL) var openURL
     
     @Published var tasks: [Task] = []
     @Published var currentOpenTimeEntries: [TimeEntry] = []
@@ -15,7 +17,6 @@ class NotionController: ObservableObject {
     var databaseId: String {
         return globalSettings.TimeTrackingDatatbaseId
     }
-    
     let pollingInterval: TimeInterval = 60.0
     var retryCount: Int = 0
     
@@ -84,7 +85,54 @@ class NotionController: ObservableObject {
         }
     }
 
-    
+    func createNewTask() {
+        // Set the default properties for the new task
+        let properties: [String: Any] = [
+            "Task": [
+                "title": [
+                    [
+                        "text": [
+                            "content": "Ad-Hoc"
+                        ]
+                    ]
+                ]
+            ],
+            "Status": [
+                "status": [
+                    "name": "Focus"
+                ]
+            ]
+        ]
+        
+        // Prepare the parameters for the API call
+        let parameters: [String: Any] = [
+            "properties": properties
+        ]
+        
+
+        
+        // Make the API call to create a new task
+        notionAPI.createNewDatabaseEntry(databaseId: globalSettings.TaskDatatbaseId, parameters: parameters) { (jsonResponse, error) in
+            if let error = error {
+                print("Failed to create new task: \(error)")
+                return
+            }
+
+            let json = JSON(jsonResponse ?? "")
+            if let urlResponse = json["url"].string {
+                let url = URL(string: urlResponse)
+                self.openURL(url!)
+            }
+            if let taskId = json["id"].string {
+                print("Successfully created new task. Task ID: \(taskId)")
+                // Call the new startNewTimeEntry method with the task ID
+                self.startNewTimeEntry(taskId: taskId)
+            } else {
+                print("Received empty or invalid JSON response.")
+            }
+        }
+    }
+
     func GetOpenTimeTickets() {
         let filterParameters: [String: Any] = [
             "filter": [
@@ -181,7 +229,10 @@ class NotionController: ObservableObject {
     }
     
     func startNewTimeEntry(task: Task) {
-
+        startNewTimeEntry(taskId: task.id)
+    }
+    
+    func startNewTimeEntry(taskId: String) {
         let dateFormatter = DateFormatter()
         dateFormatter.locale = Locale(identifier: "en_US_POSIX")
         dateFormatter.dateFormat = "yyyy-MM-dd'T'HH:mm:ss.SSSXXXXX"
@@ -207,7 +258,7 @@ class NotionController: ObservableObject {
                 ],
                 "\u{1F4DC} TasksDB": [
                     "relation": [
-                        ["id": task.id]
+                        ["id": taskId]
                     ]
                 ]
             ]

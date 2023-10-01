@@ -8,11 +8,13 @@
 import SwiftUI
 import KeychainSwift  // Make sure to import KeychainSwift
 // Initialize the GlobalSettings object
+import MenuBarExtraAccess
 
 
 @main
 struct notion_timetrackingApp: App {
     let globalSettings = GlobalSettings.shared
+    @State var isMenuPresented: Bool = false
     @StateObject var notionController: NotionController = NotionController()
     let keychain = KeychainSwift()
 
@@ -35,8 +37,17 @@ struct notion_timetrackingApp: App {
         }
         MenuBarExtra(notionController.currentTimeEntry, content:
         {
-            MenubarView().environmentObject(notionController)
+            MenubarView(isMenuPresented: $isMenuPresented)
+                .introspectMenuBarExtraWindow { window in // <-- the magic ✨
+                    window.animationBehavior = .alertPanel
+                }
+                .environmentObject(notionController)
         }).menuBarExtraStyle(.window)
+        .menuBarExtraAccess(isPresented: $isMenuPresented) { statusItem in // <-- the magic ✨
+                         // access status item or store it in a @State var
+            }
+           
+            
                      
     }
 

@@ -3,29 +3,36 @@ import SwiftUI
 struct MenubarView: View {
     @EnvironmentObject var notionController: NotionController
     @Environment(\.openURL) var openURL
+    @Binding var isMenuPresented: Bool
     
     var body: some View {
         VStack {
-            HStack {
                 Button(action: {
-
+                    let url = URL(string: notionController.currentOpenTimeEntries[0].url!)
+                    openURL(url!)
                 }) {
                     Text(notionController.currentTimeEntry)
                         .frame(minWidth: 0, maxWidth: .infinity, alignment: .leading)
                 }
                 .buttonStyle(PlainButtonStyle())
-            }
-            .padding()
-            .frame(maxWidth: .infinity, maxHeight: .infinity)
-            .background(Color(NSColor.windowBackgroundColor))
-            
+                .padding(10)
+                Button(action: {
+                   notionController.createNewTask()
+                    isMenuPresented = false
+                }) {
+                    Text("Create New")
+                        .frame(minWidth: 0, maxWidth: .infinity, alignment: .leading)
+                }
+                .buttonStyle(PlainButtonStyle())
+                .padding(10)
+                        
             // Adding the List to display all task titles
             Divider()
                         
             ForEach(notionController.tasks,id: \.id) { task in
                 MenuBarTaskRowView(task: task)
             }
-        }
+        }                
     }
 }
 
@@ -42,7 +49,7 @@ struct MenuBarTaskRowView: View {
                     openURL(url!)
                 }) {
                     Text(task.title)
-                        .frame(minWidth: 0, maxWidth: .infinity, alignment: .leading)
+                            .frame(minWidth: 0, maxWidth: .infinity, alignment: .leading)
                 }
                 .buttonStyle(PlainButtonStyle())
                 
@@ -56,6 +63,7 @@ struct MenuBarTaskRowView: View {
         .padding(.horizontal, 10)
         .cornerRadius(5)
         .padding(.vertical, 1)
+        .background(Color(NSColor.windowBackgroundColor))
 
 
 
