@@ -68,7 +68,7 @@ struct MenuBarTaskRowView: View {
         .padding(.horizontal, 10)
         .cornerRadius(5)
         .padding(.vertical, 1)
-        .background(Color(NSColor.windowBackgroundColor))
+       //.background(Color(NSColor.windowBackgroundColor))
 
     }
 }
