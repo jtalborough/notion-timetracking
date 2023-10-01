@@ -1,5 +1,6 @@
 import SwiftUI
 
+
 struct TaskListView: View {
     @EnvironmentObject var notionController: NotionController
     @Environment(\.openURL) var openURL
@@ -31,8 +32,10 @@ struct TaskListView: View {
                     }
                 }
             }
-            .listStyle(GroupedListStyle())
-            .navigationBarTitle("Task List", displayMode: .inline)
+            #if os(iOS)
+                .listStyle(GroupedListStyle())
+                .navigationBarTitle("Task List", displayMode: .inline)
+            #endif
         }
     }
 }
