@@ -2,7 +2,7 @@ import Foundation
 
 struct Task: Codable {
     var title: String {
-        var temp = self.properties?.Task?.title?[0].plain_text ?? ""
+        let temp = self.properties?.Task?.title?.first?.plain_text ?? ""
         return (temp)
     }
     struct Properties: Codable {

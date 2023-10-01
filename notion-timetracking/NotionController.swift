@@ -149,19 +149,36 @@ class NotionController: ObservableObject {
         }
     }
 
-    func updateCurrentTimer()
-    {
-        if(!currentOpenTimeEntries.isEmpty)
-        {
-            currentTimeEntry = String(currentOpenTimeEntries[0].attachedTask?.properties?.Task?.title?[0].plain_text ?? "No Current Task")
-        }
-        else
-        {
+    func updateCurrentTimer() {
+        if !currentOpenTimeEntries.isEmpty {
+            let title = String(currentOpenTimeEntries[0].attachedTask?.properties?.Task?.title?[0].plain_text ?? "")
+            
+            if let startTimeString = currentOpenTimeEntries[0].properties?.startTime?.date?.start {
+                let dateFormatter = ISO8601DateFormatter()
+                dateFormatter.formatOptions = [.withInternetDateTime, .withDashSeparatorInDate, .withColonSeparatorInTime, .withColonSeparatorInTimeZone, .withFractionalSeconds]
+                
+                if let startTime = dateFormatter.date(from: startTimeString) {
+                    let currentTime = Date()
+                    let timeInterval = currentTime.timeIntervalSince(startTime)
+                    let timePassed = Int(timeInterval)
+                    let hours = timePassed / 3600
+                    let minutes = (timePassed % 3600) / 60
+                    
+                    if hours > 0 {
+                        currentTimeEntry = "\(title) • \(hours)h \(minutes)m"
+                    } else {
+                        currentTimeEntry = "\(title) • \(minutes)m"
+                    }
+                } else {
+                    currentTimeEntry = "\(title) • -"
+                }
+            } else {
+                currentTimeEntry = "\(title) • -"
+            }
+        } else {
             currentTimeEntry = "No Current Task"
         }
-        
     }
-
     
     func startNewTimeEntry(task: Task) {
 
