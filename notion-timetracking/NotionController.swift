@@ -24,9 +24,9 @@ class NotionController: ObservableObject {
     }
     
     func startPolling() {
-        Timer.scheduledTimer(withTimeInterval: pollingInterval, repeats: true) { _ in
-            self.GetOpenTasks()
-        }
+//        Timer.scheduledTimer(withTimeInterval: pollingInterval, repeats: true) { _ in
+//            self.GetOpenTasks()
+//        }
         Timer.scheduledTimer(withTimeInterval: pollingInterval, repeats: true) { _ in
             self.GetOpenTimeTickets()
         }
@@ -95,6 +95,7 @@ class NotionController: ObservableObject {
             ]
         ]
 
+
         notionAPI.queryDatabase(databaseId: globalSettings.TimeTrackingDatatbaseId, parameters: filterParameters) { (jsonResponse, error) in
             if let error = error {
                 print("Error querying Notion database: \(error)")
@@ -160,12 +161,91 @@ class NotionController: ObservableObject {
         }
         
     }
-    func parseOpenTasks(json: JSON) {
-        // Same as your existing implementation, you can tweak as needed
-    }
+
     
-    func fetchTaskDetails(taskID: String, completion: @escaping (String?) -> Void) {
-        // Use notionAPI.getPageDetails() to fetch task details
+    func startNewTimeEntry(task: Task) {
+
+        let dateFormatter = DateFormatter()
+        dateFormatter.locale = Locale(identifier: "en_US_POSIX")
+        dateFormatter.dateFormat = "yyyy-MM-dd'T'HH:mm:ss.SSSXXXXX"
+        dateFormatter.timeZone = TimeZone(secondsFromGMT: 0)
+        
+        let endTimeString = dateFormatter.string(from: Date())
+    
+        let tempParameters: [String: Any] = [
+            "properties": [
+                "Name": [
+                    "title": [
+                        [
+                            "text": [
+                                "content": "new entry"
+                            ]
+                        ]
+                    ]
+                ],
+                "StartTime": [
+                    "date": [
+                        "start": endTimeString
+                    ]
+                ],
+                "\u{1F4DC} TasksDB": [
+                    "relation": [
+                        ["id": task.id]
+                    ]
+                ]
+            ]
+        ]
+        
+        // Use a standard for-loop instead of ForEach
+        for t in self.currentOpenTimeEntries {
+            self.endTimeEntry(entry: t)
+        }
+
+        notionAPI.createNewDatabaseEntry(databaseId: globalSettings.TimeTrackingDatatbaseId, parameters: tempParameters) { (jsonResponse, error) in
+            if let error = error {
+                print("Failed to create new database entry: \(error)")
+                return
+            }
+            
+            if let jsonResponse = jsonResponse {
+                print("Successfully created new database entry. JSON Response: \(jsonResponse)")
+                self.GetOpenTimeTickets()
+            } else {
+                print("Received empty JSON response.")
+            }
+        }
+    }
+
+    func endTimeEntry(entry: TimeEntry)
+    {
+        let dateFormatter = DateFormatter()
+        dateFormatter.locale = Locale(identifier: "en_US_POSIX")
+        dateFormatter.dateFormat = "yyyy-MM-dd'T'HH:mm:ss.SSSXXXXX"
+        dateFormatter.timeZone = TimeZone(secondsFromGMT: 0)
+        
+        let endTimeString = dateFormatter.string(from: Date())
+        
+        let tempParameters: [String: Any] = [
+            "properties": [
+                "EndTime": [
+                    "date": [
+                        "start": endTimeString
+                    ]
+                ]
+            ]
+        ]
+        
+        notionAPI.setPageDetails(pageId: entry.id!, parameters: tempParameters) { (boolResponse, error) in
+            if let error = error {
+                print("Error fetching page details: \(error)")
+                return
+            }
+
+            if boolResponse {
+                print("true")
+                return
+            }
+        }
     }
     
     func stopCurrentTimeEntry() {

@@ -13,15 +13,12 @@ import KeychainSwift  // Make sure to import KeychainSwift
 @main
 struct notion_timetrackingApp: App {
     let globalSettings = GlobalSettings.shared
-    var notionController: NotionController
+    @StateObject var notionController: NotionController = NotionController()
     let keychain = KeychainSwift()
 
     init() {
-        notionController = NotionController()
-        loadFromKeychain()
-        notionController.GetOpenTasks()
-        notionController.GetOpenTimeTickets()
 
+        //notionController = NotionController()
     }
 
     var body: some Scene {
@@ -29,12 +26,18 @@ struct notion_timetrackingApp: App {
             MainView()
                 .environmentObject(globalSettings)
                 .environmentObject(notionController)
+                .onAppear {
+                                loadFromKeychain()
+                                notionController.GetOpenTimeTickets()
+                                notionController.GetOpenTasks()
+                            }
                 
         }
-        MenuBarExtra("TEST", systemImage: "star")
+        MenuBarExtra(notionController.currentTimeEntry, content:
         {
             MenubarView().environmentObject(notionController)
-        }.menuBarExtraStyle(.window)
+        }).menuBarExtraStyle(.window)
+                     
     }
 
     func loadFromKeychain() {

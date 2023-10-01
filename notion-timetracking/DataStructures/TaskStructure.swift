@@ -160,7 +160,7 @@ struct Task: Codable {
     let properties: Properties?
     let created_by: CreatedBy?
     let last_edited_by: LastEditedBy?
-    let id: String?
+    let id: String
     let icon: IconObject?
 }
 

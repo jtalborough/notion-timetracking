@@ -6,22 +6,6 @@
 //
 import Foundation
 
-//struct TimeEntry {
-//    let id: String
-//    let startTime: Date
-//    var endTime: Date?  // Changed from 'let' to 'var'
-//    let taskReference: String
-//    let taskName: String
-//    let isDone: Bool
-//    
-//    var timeUsed: TimeInterval {
-//        // If endTime exists, calculate the time used between startTime and endTime
-//        // Otherwise, calculate the time used from startTime to the current time
-//        // Convert the time from seconds to minutes by dividing by 60
-//        return (endTime ?? Date()).timeIntervalSince(startTime) / 60
-//    }
-//}
-
 // Result Structure
 class TimeEntry: Codable {
     let archived: Bool?
@@ -54,24 +38,69 @@ class TimeEntry: Codable {
         case publicURL = "public_url"
         case url
     }
+    init(
+        archived: Bool? = nil,
+        cover: String? = nil,
+        createdBy: User? = nil,
+        createdTime: String? = nil,
+        icon: String? = nil,
+        id: String? = nil,
+        lastEditedBy: User? = nil,
+        lastEditedTime: String? = nil,
+        object: String? = nil,
+        parent: Parent? = nil,
+        properties: Properties? = nil,
+        publicURL: String? = nil,
+        url: String? = nil,
+        attachedTask: Task? = nil
+        )
+    {
+        self.archived = archived
+        self.cover = cover
+        self.createdBy = createdBy
+        self.createdTime = createdTime
+        self.icon = icon
+        self.id = id
+        self.lastEditedBy = lastEditedBy
+        self.lastEditedTime = lastEditedTime
+        self.object = object
+        self.parent = parent
+        self.properties = properties
+        self.publicURL = publicURL
+        self.url = url
+        self.attachedTask = attachedTask
+    }
 }
 
 // Properties Structure
 struct Properties: Codable {
     let createdTime: CreatedTime?
-    let done: Done?
     let endTime: EndTime?
     let name: Name?
     let startTime: StartTime?
     let tasksDB: TasksDB?
-    
+
     enum CodingKeys: String, CodingKey {
         case createdTime = "Created Time"
-        case done = "Done"
         case endTime = "EndTime"
         case name = "Name"
         case startTime = "StartTime"
         case tasksDB = "\u{1F4DC} TasksDB"
+    }
+
+    init(
+        createdTime: CreatedTime? = nil,
+        done: Done? = nil,
+        endTime: EndTime? = nil,
+        name: Name? = nil,
+        startTime: StartTime? = nil,
+        tasksDB: TasksDB? = nil
+    ) {
+        self.createdTime = createdTime
+        self.endTime = endTime
+        self.name = name
+        self.startTime = startTime
+        self.tasksDB = tasksDB
     }
 }
 // User Structure
@@ -113,7 +142,7 @@ struct Done: Codable {
 
 // Date Type
 struct EndTime: Codable {
-    let date: String?
+    let date: DateObject?
     let id: String?
     let type: String?
 }
@@ -172,12 +201,6 @@ struct Annotations: Codable {
     let strikethrough: Bool?
     let underline: Bool?
 }
-
- 
-//struct Text: Codable {
-//    let content: String?
-//    let link: String?
-//}
 
 // TasksDB Structure
 struct TasksDB: Codable {
