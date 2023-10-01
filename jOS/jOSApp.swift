@@ -21,6 +21,7 @@ struct jOSApp: App {
                 TaskListView()
                     .environmentObject(notionController)
                     .environmentObject(globalSettings)
+                    #if os(iOS)
                     .navigationBarTitle("Menu Bar", displayMode: .inline)
                     .navigationBarItems(trailing:
                         NavigationLink(destination: PreferencesView(showingPreferences: $showingPreferences)
@@ -30,15 +31,17 @@ struct jOSApp: App {
                                 .frame(width: 24, height: 24)
                         }
                     )
+                    .preferredColorScheme(.dark)  // Enable dark mode
+                    #endif
                     .onAppear {
                         loadFromKeychain()
                         notionController.GetOpenTimeTickets()
                         notionController.GetOpenTasks()
                     }
             }
-            .preferredColorScheme(.dark)  // Enable dark mode
         }
     }
+    
     func loadFromKeychain() {
         if let savedApiKey = keychain.get("apiKey")
         {
