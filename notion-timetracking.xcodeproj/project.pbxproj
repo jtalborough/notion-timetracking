@@ -31,7 +31,6 @@
 		6B6C58712AC9F3C80004135B /* NotionAPI.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6B5B72522AC3852300C071F1 /* NotionAPI.swift */; };
 		6B6C58722AC9F3E70004135B /* TimeEntry.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6BC2DB8F2AC0B85700E8A828 /* TimeEntry.swift */; };
 		6B6C58742AC9F6150004135B /* PrefrencesView.swift in Sources */ = {isa = PBXBuildFile; fileRef = E77CD02E2AC06C06005CD02F /* PrefrencesView.swift */; };
-		6B6C58752AC9FEA80004135B /* jOSApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6B6C583B2AC9EB5E0004135B /* jOSApp.swift */; };
 		6B6C58772ACA00360004135B /* notion-timetracking.app in Resources */ = {isa = PBXBuildFile; fileRef = E77CCFF92AC04893005CD02F /* notion-timetracking.app */; platformFilters = (maccatalyst, macos, ); };
 		6BC2DB892AC0A68C00E8A828 /* Alamofire in Frameworks */ = {isa = PBXBuildFile; productRef = 6BC2DB882AC0A68C00E8A828 /* Alamofire */; };
 		6BC2DB8C2AC0A6E400E8A828 /* SwiftyJSON in Frameworks */ = {isa = PBXBuildFile; productRef = 6BC2DB8B2AC0A6E400E8A828 /* SwiftyJSON */; };
@@ -600,7 +599,6 @@
 				E77CCFFF2AC04893005CD02F /* MainView.swift in Sources */,
 				6B5B72582AC42C7700C071F1 /* TaskStructure.swift in Sources */,
 				E77CD02F2AC06C06005CD02F /* PrefrencesView.swift in Sources */,
-				6B6C58752AC9FEA80004135B /* jOSApp.swift in Sources */,
 				6B5B72552AC3854100C071F1 /* NotionController.swift in Sources */,
 				E77CCFFD2AC04893005CD02F /* App.swift in Sources */,
 			);
