@@ -8,8 +8,9 @@ struct MenubarView: View {
     var body: some View {
         VStack {
                 Button(action: {
-                    let url = URL(string: (notionController.currentOpenTimeEntries[0].attachedTask?.url)!)
-                    openURL(url!)
+                    if let url = URL(string: (notionController.currentOpenTimeEntries[0].attachedTask?.url)!) {
+                        openURL(url)
+                    }
                 }) {
                     Text(notionController.currentTimeEntry)
                         .frame(minWidth: 0, maxWidth: .infinity, alignment: .leading)
