@@ -1,0 +1,527 @@
+// !$*UTF8*$!
+{
+	archiveVersion = 1;
+	classes = {
+	};
+	objectVersion = 56;
+	objects = {
+
+/* Begin PBXBuildFile section */
+		6B92818E2ACAC57C00E39EF4 /* jOS_TasksApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6B92818D2ACAC57C00E39EF4 /* jOS_TasksApp.swift */; };
+		6B9281902ACAC57C00E39EF4 /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6B92818F2ACAC57C00E39EF4 /* ContentView.swift */; };
+		6B9281922ACAC57E00E39EF4 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 6B9281912ACAC57E00E39EF4 /* Assets.xcassets */; };
+		6B9281962ACAC57E00E39EF4 /* Preview Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 6B9281952ACAC57E00E39EF4 /* Preview Assets.xcassets */; };
+		6B9281A02ACAC69A00E39EF4 /* MenuBarExtraAccess in Frameworks */ = {isa = PBXBuildFile; productRef = 6B92819F2ACAC69A00E39EF4 /* MenuBarExtraAccess */; };
+		6B9281A32ACAC6A200E39EF4 /* SwiftyJSON in Frameworks */ = {isa = PBXBuildFile; productRef = 6B9281A22ACAC6A200E39EF4 /* SwiftyJSON */; };
+		6B9281A62ACAC6B100E39EF4 /* Alamofire in Frameworks */ = {isa = PBXBuildFile; productRef = 6B9281A52ACAC6B100E39EF4 /* Alamofire */; };
+		6B9281A92ACAC6C000E39EF4 /* KeychainSwift in Frameworks */ = {isa = PBXBuildFile; productRef = 6B9281A82ACAC6C000E39EF4 /* KeychainSwift */; };
+		6B9281AC2ACAC72600E39EF4 /* LaunchAtLogin in Frameworks */ = {isa = PBXBuildFile; platformFilters = (macos, ); productRef = 6B9281AB2ACAC72600E39EF4 /* LaunchAtLogin */; };
+		6B9281BD2ACAC86800E39EF4 /* PrefrencesView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6B9281BC2ACAC86800E39EF4 /* PrefrencesView.swift */; };
+		6B9281BF2ACAC86F00E39EF4 /* MainView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6B9281BE2ACAC86E00E39EF4 /* MainView.swift */; };
+		6B9281C12ACAC87300E39EF4 /* MenuBarView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6B9281C02ACAC87300E39EF4 /* MenuBarView.swift */; };
+		6B9281C32ACAC87B00E39EF4 /* NotionController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6B9281C22ACAC87B00E39EF4 /* NotionController.swift */; };
+		6B9281C52ACAC87E00E39EF4 /* NotionAPI.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6B9281C42ACAC87E00E39EF4 /* NotionAPI.swift */; };
+		6B9281C72ACAC88200E39EF4 /* TimeEntry.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6B9281C62ACAC88200E39EF4 /* TimeEntry.swift */; };
+		6B9281C92ACAC88500E39EF4 /* TaskStructure.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6B9281C82ACAC88500E39EF4 /* TaskStructure.swift */; };
+		6B9281CB2ACAC88A00E39EF4 /* GlobalSettings.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6B9281CA2ACAC88A00E39EF4 /* GlobalSettings.swift */; };
+		6B9281CD2ACAC88D00E39EF4 /* KeychainHelper.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6B9281CC2ACAC88D00E39EF4 /* KeychainHelper.swift */; };
+		6B9281CF2ACAC99700E39EF4 /* TaskListView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6B9281CE2ACAC99700E39EF4 /* TaskListView.swift */; };
+		6B9281D62ACAD27D00E39EF4 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 6B9281D32ACAD27C00E39EF4 /* Assets.xcassets */; };
+		6B9281D72ACAD27D00E39EF4 /* appstore.png in Resources */ = {isa = PBXBuildFile; fileRef = 6B9281D42ACAD27C00E39EF4 /* appstore.png */; };
+		6B9281D82ACAD27D00E39EF4 /* playstore.png in Resources */ = {isa = PBXBuildFile; fileRef = 6B9281D52ACAD27C00E39EF4 /* playstore.png */; };
+/* End PBXBuildFile section */
+
+/* Begin PBXFileReference section */
+		6B92818A2ACAC57C00E39EF4 /* jOS-Tasks.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "jOS-Tasks.app"; sourceTree = BUILT_PRODUCTS_DIR; };
+		6B92818D2ACAC57C00E39EF4 /* jOS_TasksApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = jOS_TasksApp.swift; sourceTree = "<group>"; };
+		6B92818F2ACAC57C00E39EF4 /* ContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentView.swift; sourceTree = "<group>"; };
+		6B9281912ACAC57E00E39EF4 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
+		6B9281932ACAC57E00E39EF4 /* jOS_Tasks.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = jOS_Tasks.entitlements; sourceTree = "<group>"; };
+		6B9281952ACAC57E00E39EF4 /* Preview Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = "Preview Assets.xcassets"; sourceTree = "<group>"; };
+		6B9281BC2ACAC86800E39EF4 /* PrefrencesView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = PrefrencesView.swift; sourceTree = "<group>"; };
+		6B9281BE2ACAC86E00E39EF4 /* MainView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = MainView.swift; sourceTree = "<group>"; };
+		6B9281C02ACAC87300E39EF4 /* MenuBarView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = MenuBarView.swift; sourceTree = "<group>"; };
+		6B9281C22ACAC87B00E39EF4 /* NotionController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = NotionController.swift; sourceTree = "<group>"; };
+		6B9281C42ACAC87E00E39EF4 /* NotionAPI.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = NotionAPI.swift; sourceTree = "<group>"; };
+		6B9281C62ACAC88200E39EF4 /* TimeEntry.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = TimeEntry.swift; sourceTree = "<group>"; };
+		6B9281C82ACAC88500E39EF4 /* TaskStructure.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = TaskStructure.swift; sourceTree = "<group>"; };
+		6B9281CA2ACAC88A00E39EF4 /* GlobalSettings.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = GlobalSettings.swift; sourceTree = "<group>"; };
+		6B9281CC2ACAC88D00E39EF4 /* KeychainHelper.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = KeychainHelper.swift; sourceTree = "<group>"; };
+		6B9281CE2ACAC99700E39EF4 /* TaskListView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = TaskListView.swift; sourceTree = "<group>"; };
+		6B9281D32ACAD27C00E39EF4 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
+		6B9281D42ACAD27C00E39EF4 /* appstore.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = appstore.png; sourceTree = "<group>"; };
+		6B9281D52ACAD27C00E39EF4 /* playstore.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = playstore.png; sourceTree = "<group>"; };
+/* End PBXFileReference section */
+
+/* Begin PBXFrameworksBuildPhase section */
+		6B9281872ACAC57C00E39EF4 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				6B9281A62ACAC6B100E39EF4 /* Alamofire in Frameworks */,
+				6B9281A32ACAC6A200E39EF4 /* SwiftyJSON in Frameworks */,
+				6B9281A92ACAC6C000E39EF4 /* KeychainSwift in Frameworks */,
+				6B9281AC2ACAC72600E39EF4 /* LaunchAtLogin in Frameworks */,
+				6B9281A02ACAC69A00E39EF4 /* MenuBarExtraAccess in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXFrameworksBuildPhase section */
+
+/* Begin PBXGroup section */
+		6B9281812ACAC57C00E39EF4 = {
+			isa = PBXGroup;
+			children = (
+				6B92818C2ACAC57C00E39EF4 /* jOS-Tasks */,
+				6B92818B2ACAC57C00E39EF4 /* Products */,
+			);
+			sourceTree = "<group>";
+		};
+		6B92818B2ACAC57C00E39EF4 /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				6B92818A2ACAC57C00E39EF4 /* jOS-Tasks.app */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+		6B92818C2ACAC57C00E39EF4 /* jOS-Tasks */ = {
+			isa = PBXGroup;
+			children = (
+				6B92818D2ACAC57C00E39EF4 /* jOS_TasksApp.swift */,
+				6B9281BB2ACAC85000E39EF4 /* Import */,
+				6B92818F2ACAC57C00E39EF4 /* ContentView.swift */,
+				6B9281D22ACAD27C00E39EF4 /* AppIcons */,
+				6B9281912ACAC57E00E39EF4 /* Assets.xcassets */,
+				6B9281932ACAC57E00E39EF4 /* jOS_Tasks.entitlements */,
+				6B9281942ACAC57E00E39EF4 /* Preview Content */,
+			);
+			path = "jOS-Tasks";
+			sourceTree = "<group>";
+		};
+		6B9281942ACAC57E00E39EF4 /* Preview Content */ = {
+			isa = PBXGroup;
+			children = (
+				6B9281952ACAC57E00E39EF4 /* Preview Assets.xcassets */,
+			);
+			path = "Preview Content";
+			sourceTree = "<group>";
+		};
+		6B9281BB2ACAC85000E39EF4 /* Import */ = {
+			isa = PBXGroup;
+			children = (
+				6B9281BC2ACAC86800E39EF4 /* PrefrencesView.swift */,
+				6B9281CE2ACAC99700E39EF4 /* TaskListView.swift */,
+				6B9281BE2ACAC86E00E39EF4 /* MainView.swift */,
+				6B9281C02ACAC87300E39EF4 /* MenuBarView.swift */,
+				6B9281C22ACAC87B00E39EF4 /* NotionController.swift */,
+				6B9281C42ACAC87E00E39EF4 /* NotionAPI.swift */,
+				6B9281C62ACAC88200E39EF4 /* TimeEntry.swift */,
+				6B9281C82ACAC88500E39EF4 /* TaskStructure.swift */,
+				6B9281CA2ACAC88A00E39EF4 /* GlobalSettings.swift */,
+				6B9281CC2ACAC88D00E39EF4 /* KeychainHelper.swift */,
+			);
+			path = Import;
+			sourceTree = "<group>";
+		};
+		6B9281D22ACAD27C00E39EF4 /* AppIcons */ = {
+			isa = PBXGroup;
+			children = (
+				6B9281D32ACAD27C00E39EF4 /* Assets.xcassets */,
+				6B9281D42ACAD27C00E39EF4 /* appstore.png */,
+				6B9281D52ACAD27C00E39EF4 /* playstore.png */,
+			);
+			path = AppIcons;
+			sourceTree = "<group>";
+		};
+/* End PBXGroup section */
+
+/* Begin PBXNativeTarget section */
+		6B9281892ACAC57C00E39EF4 /* jOS-Tasks */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 6B9281992ACAC57E00E39EF4 /* Build configuration list for PBXNativeTarget "jOS-Tasks" */;
+			buildPhases = (
+				6B9281862ACAC57C00E39EF4 /* Sources */,
+				6B9281872ACAC57C00E39EF4 /* Frameworks */,
+				6B9281882ACAC57C00E39EF4 /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = "jOS-Tasks";
+			packageProductDependencies = (
+				6B92819F2ACAC69A00E39EF4 /* MenuBarExtraAccess */,
+				6B9281A22ACAC6A200E39EF4 /* SwiftyJSON */,
+				6B9281A52ACAC6B100E39EF4 /* Alamofire */,
+				6B9281A82ACAC6C000E39EF4 /* KeychainSwift */,
+				6B9281AB2ACAC72600E39EF4 /* LaunchAtLogin */,
+			);
+			productName = "jOS-Tasks";
+			productReference = 6B92818A2ACAC57C00E39EF4 /* jOS-Tasks.app */;
+			productType = "com.apple.product-type.application";
+		};
+/* End PBXNativeTarget section */
+
+/* Begin PBXProject section */
+		6B9281822ACAC57C00E39EF4 /* Project object */ = {
+			isa = PBXProject;
+			attributes = {
+				BuildIndependentTargetsInParallel = 1;
+				LastSwiftUpdateCheck = 1500;
+				LastUpgradeCheck = 1500;
+				TargetAttributes = {
+					6B9281892ACAC57C00E39EF4 = {
+						CreatedOnToolsVersion = 15.0;
+					};
+				};
+			};
+			buildConfigurationList = 6B9281852ACAC57C00E39EF4 /* Build configuration list for PBXProject "jOS-Tasks" */;
+			compatibilityVersion = "Xcode 14.0";
+			developmentRegion = en;
+			hasScannedForEncodings = 0;
+			knownRegions = (
+				en,
+				Base,
+			);
+			mainGroup = 6B9281812ACAC57C00E39EF4;
+			packageReferences = (
+				6B92819E2ACAC69A00E39EF4 /* XCRemoteSwiftPackageReference "MenuBarExtraAccess" */,
+				6B9281A12ACAC6A200E39EF4 /* XCRemoteSwiftPackageReference "SwiftyJSON" */,
+				6B9281A42ACAC6B100E39EF4 /* XCRemoteSwiftPackageReference "Alamofire" */,
+				6B9281A72ACAC6C000E39EF4 /* XCRemoteSwiftPackageReference "keychain-swift" */,
+				6B9281AA2ACAC72600E39EF4 /* XCRemoteSwiftPackageReference "LaunchAtLogin" */,
+			);
+			productRefGroup = 6B92818B2ACAC57C00E39EF4 /* Products */;
+			projectDirPath = "";
+			projectRoot = "";
+			targets = (
+				6B9281892ACAC57C00E39EF4 /* jOS-Tasks */,
+			);
+		};
+/* End PBXProject section */
+
+/* Begin PBXResourcesBuildPhase section */
+		6B9281882ACAC57C00E39EF4 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				6B9281962ACAC57E00E39EF4 /* Preview Assets.xcassets in Resources */,
+				6B9281D72ACAD27D00E39EF4 /* appstore.png in Resources */,
+				6B9281D62ACAD27D00E39EF4 /* Assets.xcassets in Resources */,
+				6B9281922ACAC57E00E39EF4 /* Assets.xcassets in Resources */,
+				6B9281D82ACAD27D00E39EF4 /* playstore.png in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXResourcesBuildPhase section */
+
+/* Begin PBXSourcesBuildPhase section */
+		6B9281862ACAC57C00E39EF4 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				6B9281902ACAC57C00E39EF4 /* ContentView.swift in Sources */,
+				6B9281BF2ACAC86F00E39EF4 /* MainView.swift in Sources */,
+				6B9281CF2ACAC99700E39EF4 /* TaskListView.swift in Sources */,
+				6B9281C32ACAC87B00E39EF4 /* NotionController.swift in Sources */,
+				6B9281CB2ACAC88A00E39EF4 /* GlobalSettings.swift in Sources */,
+				6B9281C72ACAC88200E39EF4 /* TimeEntry.swift in Sources */,
+				6B9281CD2ACAC88D00E39EF4 /* KeychainHelper.swift in Sources */,
+				6B92818E2ACAC57C00E39EF4 /* jOS_TasksApp.swift in Sources */,
+				6B9281BD2ACAC86800E39EF4 /* PrefrencesView.swift in Sources */,
+				6B9281C12ACAC87300E39EF4 /* MenuBarView.swift in Sources */,
+				6B9281C52ACAC87E00E39EF4 /* NotionAPI.swift in Sources */,
+				6B9281C92ACAC88500E39EF4 /* TaskStructure.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXSourcesBuildPhase section */
+
+/* Begin XCBuildConfiguration section */
+		6B9281972ACAC57E00E39EF4 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = YES;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++20";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = dwarf;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				ENABLE_TESTABILITY = YES;
+				ENABLE_USER_SCRIPT_SANDBOXING = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu17;
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"DEBUG=1",
+					"$(inherited)",
+				);
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				LOCALIZATION_PREFERS_STRING_CATALOGS = YES;
+				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
+				MTL_FAST_MATH = YES;
+				ONLY_ACTIVE_ARCH = YES;
+				SWIFT_ACTIVE_COMPILATION_CONDITIONS = "DEBUG $(inherited)";
+				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
+			};
+			name = Debug;
+		};
+		6B9281982ACAC57E00E39EF4 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = YES;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++20";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				ENABLE_NS_ASSERTIONS = NO;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				ENABLE_USER_SCRIPT_SANDBOXING = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu17;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				LOCALIZATION_PREFERS_STRING_CATALOGS = YES;
+				MTL_ENABLE_DEBUG_INFO = NO;
+				MTL_FAST_MATH = YES;
+				SWIFT_COMPILATION_MODE = wholemodule;
+			};
+			name = Release;
+		};
+		6B92819A2ACAC57E00E39EF4 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CODE_SIGN_ENTITLEMENTS = "jOS-Tasks/jOS_Tasks.entitlements";
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_ASSET_PATHS = "\"jOS-Tasks/Preview Content\"";
+				DEVELOPMENT_TEAM = YYQHJ5E4H8;
+				ENABLE_HARDENED_RUNTIME = YES;
+				ENABLE_PREVIEWS = YES;
+				GENERATE_INFOPLIST_FILE = YES;
+				"INFOPLIST_KEY_UIApplicationSceneManifest_Generation[sdk=iphoneos*]" = YES;
+				"INFOPLIST_KEY_UIApplicationSceneManifest_Generation[sdk=iphonesimulator*]" = YES;
+				"INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents[sdk=iphoneos*]" = YES;
+				"INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents[sdk=iphonesimulator*]" = YES;
+				"INFOPLIST_KEY_UILaunchScreen_Generation[sdk=iphoneos*]" = YES;
+				"INFOPLIST_KEY_UILaunchScreen_Generation[sdk=iphonesimulator*]" = YES;
+				"INFOPLIST_KEY_UIStatusBarStyle[sdk=iphoneos*]" = UIStatusBarStyleDefault;
+				"INFOPLIST_KEY_UIStatusBarStyle[sdk=iphonesimulator*]" = UIStatusBarStyleDefault;
+				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
+				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone = "UIInterfaceOrientationPortrait UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
+				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
+				LD_RUNPATH_SEARCH_PATHS = "@executable_path/Frameworks";
+				"LD_RUNPATH_SEARCH_PATHS[sdk=macosx*]" = "@executable_path/../Frameworks";
+				MACOSX_DEPLOYMENT_TARGET = 14.0;
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = jta.jos.tasks;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = auto;
+				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator macosx";
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Debug;
+		};
+		6B92819B2ACAC57E00E39EF4 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CODE_SIGN_ENTITLEMENTS = "jOS-Tasks/jOS_Tasks.entitlements";
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_ASSET_PATHS = "\"jOS-Tasks/Preview Content\"";
+				DEVELOPMENT_TEAM = YYQHJ5E4H8;
+				ENABLE_HARDENED_RUNTIME = YES;
+				ENABLE_PREVIEWS = YES;
+				GENERATE_INFOPLIST_FILE = YES;
+				"INFOPLIST_KEY_UIApplicationSceneManifest_Generation[sdk=iphoneos*]" = YES;
+				"INFOPLIST_KEY_UIApplicationSceneManifest_Generation[sdk=iphonesimulator*]" = YES;
+				"INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents[sdk=iphoneos*]" = YES;
+				"INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents[sdk=iphonesimulator*]" = YES;
+				"INFOPLIST_KEY_UILaunchScreen_Generation[sdk=iphoneos*]" = YES;
+				"INFOPLIST_KEY_UILaunchScreen_Generation[sdk=iphonesimulator*]" = YES;
+				"INFOPLIST_KEY_UIStatusBarStyle[sdk=iphoneos*]" = UIStatusBarStyleDefault;
+				"INFOPLIST_KEY_UIStatusBarStyle[sdk=iphonesimulator*]" = UIStatusBarStyleDefault;
+				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
+				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone = "UIInterfaceOrientationPortrait UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
+				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
+				LD_RUNPATH_SEARCH_PATHS = "@executable_path/Frameworks";
+				"LD_RUNPATH_SEARCH_PATHS[sdk=macosx*]" = "@executable_path/../Frameworks";
+				MACOSX_DEPLOYMENT_TARGET = 14.0;
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = jta.jos.tasks;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = auto;
+				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator macosx";
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Release;
+		};
+/* End XCBuildConfiguration section */
+
+/* Begin XCConfigurationList section */
+		6B9281852ACAC57C00E39EF4 /* Build configuration list for PBXProject "jOS-Tasks" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				6B9281972ACAC57E00E39EF4 /* Debug */,
+				6B9281982ACAC57E00E39EF4 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		6B9281992ACAC57E00E39EF4 /* Build configuration list for PBXNativeTarget "jOS-Tasks" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				6B92819A2ACAC57E00E39EF4 /* Debug */,
+				6B92819B2ACAC57E00E39EF4 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+/* End XCConfigurationList section */
+
+/* Begin XCRemoteSwiftPackageReference section */
+		6B92819E2ACAC69A00E39EF4 /* XCRemoteSwiftPackageReference "MenuBarExtraAccess" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/orchetect/MenuBarExtraAccess";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 1.0.5;
+			};
+		};
+		6B9281A12ACAC6A200E39EF4 /* XCRemoteSwiftPackageReference "SwiftyJSON" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/SwiftyJSON/SwiftyJSON.git";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 5.0.1;
+			};
+		};
+		6B9281A42ACAC6B100E39EF4 /* XCRemoteSwiftPackageReference "Alamofire" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/Alamofire/Alamofire.git";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 5.8.0;
+			};
+		};
+		6B9281A72ACAC6C000E39EF4 /* XCRemoteSwiftPackageReference "keychain-swift" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/evgenyneu/keychain-swift";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 20.0.0;
+			};
+		};
+		6B9281AA2ACAC72600E39EF4 /* XCRemoteSwiftPackageReference "LaunchAtLogin" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/sindresorhus/LaunchAtLogin";
+			requirement = {
+				branch = main;
+				kind = branch;
+			};
+		};
+/* End XCRemoteSwiftPackageReference section */
+
+/* Begin XCSwiftPackageProductDependency section */
+		6B92819F2ACAC69A00E39EF4 /* MenuBarExtraAccess */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 6B92819E2ACAC69A00E39EF4 /* XCRemoteSwiftPackageReference "MenuBarExtraAccess" */;
+			productName = MenuBarExtraAccess;
+		};
+		6B9281A22ACAC6A200E39EF4 /* SwiftyJSON */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 6B9281A12ACAC6A200E39EF4 /* XCRemoteSwiftPackageReference "SwiftyJSON" */;
+			productName = SwiftyJSON;
+		};
+		6B9281A52ACAC6B100E39EF4 /* Alamofire */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 6B9281A42ACAC6B100E39EF4 /* XCRemoteSwiftPackageReference "Alamofire" */;
+			productName = Alamofire;
+		};
+		6B9281A82ACAC6C000E39EF4 /* KeychainSwift */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 6B9281A72ACAC6C000E39EF4 /* XCRemoteSwiftPackageReference "keychain-swift" */;
+			productName = KeychainSwift;
+		};
+		6B9281AB2ACAC72600E39EF4 /* LaunchAtLogin */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 6B9281AA2ACAC72600E39EF4 /* XCRemoteSwiftPackageReference "LaunchAtLogin" */;
+			productName = LaunchAtLogin;
+		};
+/* End XCSwiftPackageProductDependency section */
+	};
+	rootObject = 6B9281822ACAC57C00E39EF4 /* Project object */;
+}
