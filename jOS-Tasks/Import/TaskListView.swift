@@ -1,6 +1,6 @@
 import SwiftUI
 
-
+#if os(iOS)
 struct TaskListView: View {
     @EnvironmentObject var notionController: NotionController
     @Environment(\.openURL) var openURL
@@ -55,3 +55,4 @@ struct TaskRowView: View {
         }
     }
 }
+#endif
