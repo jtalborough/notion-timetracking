@@ -73,7 +73,7 @@ class NotionController: ObservableObject {
                     // Now, 'tasks' is an array of Task structs
                     //print("Received tasks: \(self.tasks)")
                 } catch let decodeError {
-                    print("Failed to decode JSON into Task array: \(decodeError)")
+                    print("Failed to decode JSON Task array: \(decodeError)")
                 }
             }
         }

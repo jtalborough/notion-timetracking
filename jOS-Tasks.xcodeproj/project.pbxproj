@@ -51,6 +51,7 @@
 		6B9281D32ACAD27C00E39EF4 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		6B9281D42ACAD27C00E39EF4 /* appstore.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = appstore.png; sourceTree = "<group>"; };
 		6B9281D52ACAD27C00E39EF4 /* playstore.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = playstore.png; sourceTree = "<group>"; };
+		6BC8BD262ACAD79200B0D8A7 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist; path = Info.plist; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -88,7 +89,9 @@
 		6B92818C2ACAC57C00E39EF4 /* jOS-Tasks */ = {
 			isa = PBXGroup;
 			children = (
+				6BC8BD262ACAD79200B0D8A7 /* Info.plist */,
 				6B92818D2ACAC57C00E39EF4 /* jOS_TasksApp.swift */,
+				6BC8BD272ACADA5800B0D8A7 /* Views */,
 				6B9281BB2ACAC85000E39EF4 /* Import */,
 				6B92818F2ACAC57C00E39EF4 /* ContentView.swift */,
 				6B9281D22ACAD27C00E39EF4 /* AppIcons */,
@@ -110,10 +113,6 @@
 		6B9281BB2ACAC85000E39EF4 /* Import */ = {
 			isa = PBXGroup;
 			children = (
-				6B9281BC2ACAC86800E39EF4 /* PrefrencesView.swift */,
-				6B9281CE2ACAC99700E39EF4 /* TaskListView.swift */,
-				6B9281BE2ACAC86E00E39EF4 /* MainView.swift */,
-				6B9281C02ACAC87300E39EF4 /* MenuBarView.swift */,
 				6B9281C22ACAC87B00E39EF4 /* NotionController.swift */,
 				6B9281C42ACAC87E00E39EF4 /* NotionAPI.swift */,
 				6B9281C62ACAC88200E39EF4 /* TimeEntry.swift */,
@@ -132,6 +131,17 @@
 				6B9281D52ACAD27C00E39EF4 /* playstore.png */,
 			);
 			path = AppIcons;
+			sourceTree = "<group>";
+		};
+		6BC8BD272ACADA5800B0D8A7 /* Views */ = {
+			isa = PBXGroup;
+			children = (
+				6B9281BC2ACAC86800E39EF4 /* PrefrencesView.swift */,
+				6B9281CE2ACAC99700E39EF4 /* TaskListView.swift */,
+				6B9281BE2ACAC86E00E39EF4 /* MainView.swift */,
+				6B9281C02ACAC87300E39EF4 /* MenuBarView.swift */,
+			);
+			path = Views;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -366,6 +376,7 @@
 				ENABLE_HARDENED_RUNTIME = YES;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = "jOS-Tasks/Info.plist";
 				"INFOPLIST_KEY_UIApplicationSceneManifest_Generation[sdk=iphoneos*]" = YES;
 				"INFOPLIST_KEY_UIApplicationSceneManifest_Generation[sdk=iphonesimulator*]" = YES;
 				"INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents[sdk=iphoneos*]" = YES;
@@ -404,6 +415,7 @@
 				ENABLE_HARDENED_RUNTIME = YES;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = "jOS-Tasks/Info.plist";
 				"INFOPLIST_KEY_UIApplicationSceneManifest_Generation[sdk=iphoneos*]" = YES;
 				"INFOPLIST_KEY_UIApplicationSceneManifest_Generation[sdk=iphonesimulator*]" = YES;
 				"INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents[sdk=iphoneos*]" = YES;
