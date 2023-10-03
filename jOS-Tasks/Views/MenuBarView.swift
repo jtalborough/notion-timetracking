@@ -1,22 +1,33 @@
 import SwiftUI
 
+#if os(macOS)
 struct MenubarView: View {
     @EnvironmentObject var notionController: NotionController
-    @Environment(\.openURL) var openURL
     @Binding var isMenuPresented: Bool
     
     var body: some View {
         VStack {
-                Button(action: {
-                    if let url = URL(string: (notionController.currentOpenTimeEntries[0].attachedTask?.url)!) {
-                        openURL(url)
-                    }
-                }) {
-                    Text(notionController.currentTimeEntry)
-                        .frame(minWidth: 0, maxWidth: .infinity, alignment: .leading)
+            HStack {
+                if(notionController.currentOpenTimeEntries.count > 0) {
+                    Text("\(String(notionController.currentTimeEntry))")
+                        .font(.title)
                 }
-                .buttonStyle(PlainButtonStyle())
-                .padding(10)
+                else {
+                    Text("No Current Task")
+                        .font(.title)
+                }
+                
+                Spacer()
+
+                Button(action: {
+                    notionController.stopCurrentTimeEntry()
+                    }) {
+                    Text("End")
+                        .font(.title)
+                        .foregroundColor(.white)
+                    }
+                    .padding()
+                }
                 Button(action: {
                    notionController.createNewTask()
                     isMenuPresented = false
@@ -39,7 +50,6 @@ struct MenubarView: View {
 
 struct MenuBarTaskRowView: View {
     let task: Task
-    @Environment(\.openURL) var openURL
     @EnvironmentObject var notionController: NotionController
     @Binding var isMenuPresented: Bool
     
@@ -47,8 +57,7 @@ struct MenuBarTaskRowView: View {
         VStack(alignment: .leading, spacing: 5) {
             HStack {
                 Button(action: {
-                    let url = URL(string: task.url!)
-                    openURL(url!)
+                    openUrlInNotion(from: task.url!)
                     isMenuPresented = false
                 }) {
                     Text(task.title)
@@ -57,11 +66,13 @@ struct MenuBarTaskRowView: View {
                 .buttonStyle(PlainButtonStyle())
                 
                 Spacer(minLength: 20) // Reserve a minimum space between the buttons
+                Button("Done") {
+                    notionController.markTaskComplete(taskId: task.id)
+                }
                 
                 Button("Start") {
+                    openUrlInNotion(from: task.url!)
                     notionController.startNewTimeEntry(task: task)
-                    let url = URL(string: task.url!)
-                    openURL(url!)
                     isMenuPresented = false
                 }
             }.frame(minWidth: 556)
@@ -69,7 +80,6 @@ struct MenuBarTaskRowView: View {
         .padding(.horizontal, 10)
         .cornerRadius(5)
         .padding(.vertical, 1)
-       //.background(Color(NSColor.windowBackgroundColor))
-
     }
 }
+#endif

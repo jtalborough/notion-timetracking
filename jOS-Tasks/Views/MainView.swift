@@ -3,7 +3,6 @@ import SwiftUI
 struct MainView: View {
     @EnvironmentObject var globalSettings: GlobalSettings
     @EnvironmentObject var notionController: NotionController
-
     @State private var showingPreferences = false
 
     var body: some View {
@@ -23,15 +22,14 @@ struct MainView: View {
                     
                     Spacer()
 
-//                    Button(action: {
-//                        // Your logic for ending the time entry
-//                        // notionController.stopCurrentTimeEntry()
-//                    }) {
-//                        Text("End" as! Decoder)
-//                            .font(.title)
-//                            .foregroundColor(.red)
-//                    }
-//                    .padding()
+                    Button(action: {
+                        notionController.stopCurrentTimeEntry()
+                    }) {
+                        Text("End")
+                            .font(.title)
+                            .foregroundColor(.red)
+                    }
+                    .padding()
                 }
 
                 Spacer()

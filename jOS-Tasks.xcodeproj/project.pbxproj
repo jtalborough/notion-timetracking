@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		6B667B672ACC722E00818722 /* helpers.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6B667B662ACC722E00818722 /* helpers.swift */; };
 		6B92818E2ACAC57C00E39EF4 /* jOS_TasksApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6B92818D2ACAC57C00E39EF4 /* jOS_TasksApp.swift */; };
 		6B9281902ACAC57C00E39EF4 /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6B92818F2ACAC57C00E39EF4 /* ContentView.swift */; };
 		6B9281922ACAC57E00E39EF4 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 6B9281912ACAC57E00E39EF4 /* Assets.xcassets */; };
@@ -32,6 +33,7 @@
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
+		6B667B662ACC722E00818722 /* helpers.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = helpers.swift; sourceTree = "<group>"; };
 		6B92818A2ACAC57C00E39EF4 /* jOS-Tasks.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "jOS-Tasks.app"; sourceTree = BUILT_PRODUCTS_DIR; };
 		6B92818D2ACAC57C00E39EF4 /* jOS_TasksApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = jOS_TasksApp.swift; sourceTree = "<group>"; };
 		6B92818F2ACAC57C00E39EF4 /* ContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentView.swift; sourceTree = "<group>"; };
@@ -98,6 +100,7 @@
 				6B9281912ACAC57E00E39EF4 /* Assets.xcassets */,
 				6B9281932ACAC57E00E39EF4 /* jOS_Tasks.entitlements */,
 				6B9281942ACAC57E00E39EF4 /* Preview Content */,
+				6B667B662ACC722E00818722 /* helpers.swift */,
 			);
 			path = "jOS-Tasks";
 			sourceTree = "<group>";
@@ -231,6 +234,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				6B667B672ACC722E00818722 /* helpers.swift in Sources */,
 				6B9281902ACAC57C00E39EF4 /* ContentView.swift in Sources */,
 				6B9281BF2ACAC86F00E39EF4 /* MainView.swift in Sources */,
 				6B9281CF2ACAC99700E39EF4 /* TaskListView.swift in Sources */,

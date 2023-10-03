@@ -25,14 +25,13 @@ class NotionController: ObservableObject {
     }
     
     func startPolling() {
-//        Timer.scheduledTimer(withTimeInterval: pollingInterval, repeats: true) { _ in
-//            self.GetOpenTasks()
-//        }
+        Timer.scheduledTimer(withTimeInterval: pollingInterval, repeats: true) { _ in
+            self.GetOpenTasks()
+        }
         Timer.scheduledTimer(withTimeInterval: pollingInterval, repeats: true) { _ in
             self.GetOpenTimeTickets()
         }
     }
-    
 
     func GetOpenTasks() {
         // Define filter parameters
@@ -77,12 +76,46 @@ class NotionController: ObservableObject {
                 }
             }
         }
+        self.updateCurrentTimer()
     }
 
     func updateTasks(newTasks: [Task]) {
         DispatchQueue.main.async {
             self.tasks = newTasks
         }
+    }
+
+    func markTaskComplete(taskId: String) {
+        // Set the default properties for the new task
+        let properties: [String: Any] = [
+            "Status": [
+                "status": [
+                    "name": "Done"
+                ]
+            ]
+        ]
+        
+        // Prepare the parameters for the API call
+        let parameters: [String: Any] = [
+            "properties": properties
+        ]
+        
+
+        // Make the API call to create a new task
+        notionAPI.setPageDetails(pageId: taskId, parameters: parameters){ (jsonResponse, error) in
+            if let error = error {
+                print("Failed to create new task: \(error)")
+                return
+            }
+
+            let json = JSON(jsonResponse )
+            if let urlResponse = json["url"].string {
+                let url = URL(string: urlResponse)
+                self.openURL(url!)
+            }
+            self.GetOpenTasks()
+        }
+        
     }
 
     func createNewTask() {
@@ -317,7 +350,11 @@ class NotionController: ObservableObject {
     }
     
     func stopCurrentTimeEntry() {
-        // Same as your existing implementation but use notionAPI.setPageDetails() to update task
+        
+        for t in self.currentOpenTimeEntries {
+            self.endTimeEntry(entry: t)
+        }
+        self.GetOpenTimeTickets()
     }
     
     func handleFailure() {

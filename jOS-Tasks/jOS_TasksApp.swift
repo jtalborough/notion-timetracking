@@ -23,31 +23,27 @@ struct notion_timetrackingApp: App {
 #if os(macOS)
 
     var body: some Scene {
-        WindowGroup {
-            MainView()
-                .environmentObject(globalSettings)
-                .environmentObject(notionController)
-                .onAppear {
-                                loadFromKeychain()
-                                notionController.GetOpenTimeTickets()
-                                notionController.GetOpenTasks()
-                            }
-                
-        }
-        MenuBarExtra(notionController.currentTimeEntry, content:
+        MenuBarExtra("\(String(notionController.currentTimeEntry))", content:
         {
             MenubarView(isMenuPresented: $isMenuPresented)
                 .introspectMenuBarExtraWindow { window in // <-- the magic ✨
-                    window.animationBehavior = .alertPanel
+                    window.animationBehavior = .utilityWindow
                 }
                 .environmentObject(notionController)
         }).menuBarExtraStyle(.window)
         .menuBarExtraAccess(isPresented: $isMenuPresented) { statusItem in // <-- the magic ✨
-                         // access status item or store it in a @State var
+        }
+        WindowGroup {
+            MainView()
+            .environmentObject(globalSettings)
+            .environmentObject(notionController)
+            .onAppear {
+                loadFromKeychain()
+                notionController.GetOpenTimeTickets()
+                notionController.GetOpenTasks()
             }
-           
-            
-                     
+        }
+
     }
 #endif
 #if os(iOS)
