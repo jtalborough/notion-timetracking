@@ -9,27 +9,23 @@ struct MenubarView: View {
         VStack {
             HStack {
                 if(notionController.currentOpenTimeEntries.count > 0) {
-                    Text("\(String(notionController.currentTimeEntry))")
-                        .font(.title)
+                    Text("\(String(notionController.currentTimeEntry))").padding(10)
                 }
                 else {
-                    Text("No Current Task")
-                        .font(.title)
+                    Text("No Current Task").padding(10)
                 }
-                
+                    
                 Spacer()
-
                 Button(action: {
                     notionController.stopCurrentTimeEntry()
                     }) {
                     Text("End")
-                        .font(.title)
                         .foregroundColor(.white)
                     }
                     .padding()
                 }
                 Button(action: {
-                   notionController.createNewTask()
+                    notionController.createNewTask()
                     isMenuPresented = false
                 }) {
                     Text("Create New")
@@ -56,6 +52,9 @@ struct MenuBarTaskRowView: View {
     var body: some View {
         VStack(alignment: .leading, spacing: 5) {
             HStack {
+                Button("Done") {
+                    notionController.markTaskComplete(taskId: task.id)
+                }
                 Button(action: {
                     openUrlInNotion(from: task.url!)
                     isMenuPresented = false
@@ -66,10 +65,6 @@ struct MenuBarTaskRowView: View {
                 .buttonStyle(PlainButtonStyle())
                 
                 Spacer(minLength: 20) // Reserve a minimum space between the buttons
-                Button("Done") {
-                    notionController.markTaskComplete(taskId: task.id)
-                }
-                
                 Button("Start") {
                     openUrlInNotion(from: task.url!)
                     notionController.startNewTimeEntry(task: task)

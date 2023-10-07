@@ -4,6 +4,7 @@ import Foundation
 import SwiftUI
 import SwiftyJSON
 import MenuBarExtraAccess
+import Combine
 
 class NotionController: ObservableObject {
     let globalSettings = GlobalSettings.shared
@@ -11,30 +12,56 @@ class NotionController: ObservableObject {
     @Environment(\.openURL) var openURL
     
     @Published var tasks: [Task] = []
-    @Published var currentOpenTimeEntries: [TimeEntry] = []
+    @Published var currentOpenTimeEntries: [TimeEntry]
     @Published var currentTimeEntry: String = ""
+    var cancellables = Set<AnyCancellable>()
     
     var databaseId: String {
         return globalSettings.TimeTrackingDatatbaseId
     }
-    let pollingInterval: TimeInterval = 60.0
+    let pollingInterval: TimeInterval = 15
     var retryCount: Int = 0
     
     init() {
+        self.currentOpenTimeEntries = []
         self.startPolling()
     }
     
     func startPolling() {
-        Timer.scheduledTimer(withTimeInterval: pollingInterval, repeats: true) { _ in
-            self.GetOpenTasks()
-        }
-        Timer.scheduledTimer(withTimeInterval: pollingInterval, repeats: true) { _ in
-            self.GetOpenTimeTickets()
-        }
+        // First poll: No delay
+        Timer.publish(every: 30, on: .main, in: .common)
+            .autoconnect()
+            .sink { _ in
+                self.GetOpenTasks()
+            }
+            .store(in: &cancellables)
+        
+        // Second poll: 15 seconds delay
+        Timer.publish(every: 30, on: .main, in: .common)
+            .autoconnect()
+            .delay(for: .seconds(15), scheduler: RunLoop.main)
+            .sink { _ in
+                self.GetOpenTimeTickets()
+            }
+            .store(in: &cancellables)
     }
-
+//    func startPolling() {
+//        Timer.scheduledTimer(withTimeInterval: pollingInterval, repeats: true) { _ in
+//            self.GetOpenTasks()
+//        }
+//        Timer.scheduledTimer(withTimeInterval: pollingInterval, repeats: true) { _ in
+//            self.GetOpenTimeTickets()
+//        }
+//
+//    }
+    // writte a funciton for setting the stop time 5 min earlier
+    func SetStopTime(numberOfMinBack: Int)
+    {
+            
+        
+    }
+    
     func GetOpenTasks() {
-        // Define filter parameters
         let filterParameters: [String: Any] = [
             "filter": [
                 "and": [
@@ -45,9 +72,101 @@ class NotionController: ObservableObject {
                         ]
                     ]
                 ]
+            ],
+            "sorts": [
+                    [
+                        "property": "DoDate",
+                        "direction": "descending"
+                    ]
             ]
         ]
+    // writte a funciton for setting the stop time 5 min earlier
         
+//        let filterParameters: [String: Any] = [
+//            "filter": [
+//                "or": [
+//                    [
+//                        "and": [
+//                            [
+//                                "property": "DoDate",
+//                                "is_empty": true
+//                            ],
+//                            [
+//                                "or": [
+//                                    [
+//                                        "property": "Status",
+//                                        "status": [
+//                                            "equals": "Focus"
+//                                        ]
+//                                    ],
+//                                    [
+//                                        "property": "Status",
+//                                        "status": [
+//                                            "equals": "Active"
+//                                        ]
+//                                    ]
+//                                ]
+//                            ]
+//                        ]
+//                    ],
+//                    [
+//                        "and": [
+//                            [
+//                                "property": "DoDate",
+//                                "date" : [
+//                                    "on_or_before":
+//                                    ]
+//                            ],
+//                            [
+//                                "not": [
+//                                    "or": [
+//                                        [
+//                                            "property": "Status",
+//                                            "select": [
+//                                                "equals": "Done"
+//                                            ]
+//                                        ],
+//                                        [
+//                                            "property": "Status",
+//                                            "select": [
+//                                                "equals": "Info"
+//                                            ]
+//                                        ],
+//                                        [
+//                                            "property": "Status",
+//                                            "select": [
+//                                                "equals": "Someday"
+//                                            ]
+//                                        ]
+//                                    ]
+//                                ]
+//                            ]
+//                        ]
+//                    ],
+//                    [
+//                        "and": [
+//                            [
+//                                "property": "Parent item",
+//                                "is_empty": false
+//                            ],
+//                            [
+//                                "property": "Status",
+//                                "select": [
+//                                    "does_not_equal": "Done"
+//                                ]
+//                            ],
+//                            [
+//                                "property": "DoDate StartDate",
+//                                "date": [
+//                                    "on_or_before": "today"
+//                                ]
+//                            ]
+//                        ]
+//                    ]
+//                ]
+//            ]
+//        ]
+
         notionAPI.queryDatabase(databaseId: globalSettings.TaskDatatbaseId, parameters: filterParameters) { (jsonResponse, error) in
             if let error = error {
                 print("Error querying Notion database: \(error)")
@@ -66,8 +185,27 @@ class NotionController: ObservableObject {
                     let data = try JSONSerialization.data(withJSONObject: resultsArray.map { $0.object }, options: [])
                     
                     // Decode the data into an array of Task structs
-                    let tempTasks = try JSONDecoder().decode([Task].self, from: data)
-                    self.updateTasks(newTasks: tempTasks)
+                    do {
+                        let tempTasks = try JSONDecoder().decode([Task].self, from: data)
+                        self.updateTasks(newTasks: tempTasks)
+                    } catch let error {
+                        print("JSON decoding error: \(error)")
+                        
+                        if let underlyingError = error as? DecodingError {
+                            switch underlyingError {
+                            case .typeMismatch(let type, let context):
+                                print("Type Mismatch: \(type) - \(context)")
+                            case .keyNotFound(let key, let context):
+                                print("Key Not Found: \(key) - \(context)")
+                            case .valueNotFound(let type, let context):
+                                print("Value Not Found: \(type) - \(context)")
+                            case .dataCorrupted(let context):
+                                print("Data Corrupted: \(context)")
+                            default:
+                                print("Unknown Decoding Error")
+                            }
+                        }
+                    }
                     
                     // Now, 'tasks' is an array of Task structs
                     //print("Received tasks: \(self.tasks)")
@@ -76,7 +214,6 @@ class NotionController: ObservableObject {
                 }
             }
         }
-        self.updateCurrentTimer()
     }
 
     func updateTasks(newTasks: [Task]) {
@@ -125,7 +262,7 @@ class NotionController: ObservableObject {
                 "title": [
                     [
                         "text": [
-                            "content": "Ad-Hoc"
+                            "content": ""
                         ]
                     ]
                 ]
@@ -153,8 +290,7 @@ class NotionController: ObservableObject {
 
             let json = JSON(jsonResponse ?? "")
             if let urlResponse = json["url"].string {
-                let url = URL(string: urlResponse)
-                self.openURL(url!)
+                openUrlInNotion(from: urlResponse)
             }
             if let taskId = json["id"].string {
                 print("Successfully created new task. Task ID: \(taskId)")
@@ -201,6 +337,7 @@ class NotionController: ObservableObject {
                 }
             }
         }
+        updateCurrentTimer()
     }
 
     func updateAttachedTask(for entry: TimeEntry) {
@@ -322,7 +459,7 @@ class NotionController: ObservableObject {
         let dateFormatter = DateFormatter()
         dateFormatter.locale = Locale(identifier: "en_US_POSIX")
         dateFormatter.dateFormat = "yyyy-MM-dd'T'HH:mm:ss.SSSXXXXX"
-        dateFormatter.timeZone = TimeZone(secondsFromGMT: 0)
+        dateFormatter.timeZone = TimeZone.current
         
         let endTimeString = dateFormatter.string(from: Date())
         
