@@ -45,15 +45,7 @@ class NotionController: ObservableObject {
             }
             .store(in: &cancellables)
     }
-//    func startPolling() {
-//        Timer.scheduledTimer(withTimeInterval: pollingInterval, repeats: true) { _ in
-//            self.GetOpenTasks()
-//        }
-//        Timer.scheduledTimer(withTimeInterval: pollingInterval, repeats: true) { _ in
-//            self.GetOpenTimeTickets()
-//        }
-//
-//    }
+
     // writte a funciton for setting the stop time 5 min earlier
     func SetStopTime(numberOfMinBack: Int)
     {
@@ -62,111 +54,38 @@ class NotionController: ObservableObject {
     }
     
     func GetOpenTasks() {
+        let dateFormatter = ISO8601DateFormatter()
+        dateFormatter.formatOptions = [.withInternetDateTime, .withDashSeparatorInDate, .withColonSeparatorInTime]
+        
+        // Get today's date in ISO 8601 format
+        let todayDateString = dateFormatter.string(from: Date())
+        
         let filterParameters: [String: Any] = [
             "filter": [
                 "and": [
                     [
+                        "property": "DoDate",
+                        "date": [
+                            "on_or_before": todayDateString
+                        ]
+                    ],
+                    [
                         "property": "Status",
                         "status": [
-                            "equals": "Focus"
+                            "equals": "ToDo"
                         ]
                     ]
                 ]
             ],
             "sorts": [
-                    [
-                        "property": "DoDate",
-                        "direction": "descending"
-                    ]
+                [
+                    "property": "DoDate",
+                    "direction": "descending"
+                ]
             ]
         ]
-    // writte a funciton for setting the stop time 5 min earlier
+ 
         
-//        let filterParameters: [String: Any] = [
-//            "filter": [
-//                "or": [
-//                    [
-//                        "and": [
-//                            [
-//                                "property": "DoDate",
-//                                "is_empty": true
-//                            ],
-//                            [
-//                                "or": [
-//                                    [
-//                                        "property": "Status",
-//                                        "status": [
-//                                            "equals": "Focus"
-//                                        ]
-//                                    ],
-//                                    [
-//                                        "property": "Status",
-//                                        "status": [
-//                                            "equals": "Active"
-//                                        ]
-//                                    ]
-//                                ]
-//                            ]
-//                        ]
-//                    ],
-//                    [
-//                        "and": [
-//                            [
-//                                "property": "DoDate",
-//                                "date" : [
-//                                    "on_or_before":
-//                                    ]
-//                            ],
-//                            [
-//                                "not": [
-//                                    "or": [
-//                                        [
-//                                            "property": "Status",
-//                                            "select": [
-//                                                "equals": "Done"
-//                                            ]
-//                                        ],
-//                                        [
-//                                            "property": "Status",
-//                                            "select": [
-//                                                "equals": "Info"
-//                                            ]
-//                                        ],
-//                                        [
-//                                            "property": "Status",
-//                                            "select": [
-//                                                "equals": "Someday"
-//                                            ]
-//                                        ]
-//                                    ]
-//                                ]
-//                            ]
-//                        ]
-//                    ],
-//                    [
-//                        "and": [
-//                            [
-//                                "property": "Parent item",
-//                                "is_empty": false
-//                            ],
-//                            [
-//                                "property": "Status",
-//                                "select": [
-//                                    "does_not_equal": "Done"
-//                                ]
-//                            ],
-//                            [
-//                                "property": "DoDate StartDate",
-//                                "date": [
-//                                    "on_or_before": "today"
-//                                ]
-//                            ]
-//                        ]
-//                    ]
-//                ]
-//            ]
-//        ]
-
         notionAPI.queryDatabase(databaseId: globalSettings.TaskDatatbaseId, parameters: filterParameters) { (jsonResponse, error) in
             if let error = error {
                 print("Error querying Notion database: \(error)")
@@ -328,16 +247,18 @@ class NotionController: ObservableObject {
                 do {
                     let data = try JSONSerialization.data(withJSONObject: resultsArray.map { $0.object }, options: [])
                     self.currentOpenTimeEntries = try JSONDecoder().decode([TimeEntry].self, from: data)
-
-                    for entry in self.currentOpenTimeEntries {
-                        self.updateAttachedTask(for: entry)
+                    if(self.currentOpenTimeEntries.isEmpty) {
+                        self.updateCurrentTimer()
+                    } else {
+                        for entry in self.currentOpenTimeEntries {
+                            self.updateAttachedTask(for: entry)
+                        }
                     }
                 } catch let decodeError {
                     print("Failed to decode JSON into TimeEntry array: \(decodeError)")
                 }
             }
         }
-        updateCurrentTimer()
     }
 
     func updateAttachedTask(for entry: TimeEntry) {
@@ -359,8 +280,14 @@ class NotionController: ObservableObject {
 
             do {
                 let data = try JSONSerialization.data(withJSONObject: jsonResponse.object, options: [])
-                entry.attachedTask = try JSONDecoder().decode(Task.self, from: data)
+                let task = try JSONDecoder().decode(Task.self, from: data)
+                if (task.properties?.Status?.status?.name == "Done") {
+                    self.stopCurrentTimeEntry()
+                } else {
+                    entry.attachedTask = task
+                }
                 self.updateCurrentTimer()
+                
             } catch {
                 print("Error parsing JSON: \(error)")
             }

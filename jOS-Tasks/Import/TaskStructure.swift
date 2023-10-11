@@ -36,10 +36,10 @@ struct Task: Codable {
        // let Start: DateProperty?
         let Cost: NumberProperty?
 //        let Area: RollupProperty?
-//        let Status: StatusProperty?
+        let Status: StatusProperty?
         let TimeTracking: RelationProperty?
     // let `Sub-item`: RelationProperty?
-//        let DoDate: DateProperty?
+        let DoDate: DateProperty?
         let Task: TitleProperty?
         let Time: NumberProperty?
         let Project: RelationProperty?
@@ -85,23 +85,42 @@ struct Task: Codable {
         // Add any other properties you expect to find in the multi_select dictionaries
     }
     
-//    struct DateProperty: Codable {
-//        let type: String
-//        let id: String
-//        let date: DateValue?
-//    }
+    struct DateProperty: Codable {
+        let type: String
+        let id: String
+        let date: DateValue?
+    }
     
+    // DateObject Structure
+    struct DateValue: Codable {
+        let end: String?
+        let start: String?
+        let timeZone: String?
+        
+        enum CodingKeys: String, CodingKey {
+            case end
+            case start
+            case timeZone = "time_zone"
+        }
+    }
     struct NumberProperty: Codable {
         let type: String
         let id: String
         let number: Double?
     }
     
-//    struct StatusProperty: Codable {
-//        let type: String
-//        let id: String
-//        let status: StatusValue?
-//    }
+    struct StatusProperty: Codable {
+        let type: String
+        let id: String
+        let status: StatusValue?
+    }
+    
+    struct StatusValue: Codable {
+        let id: String
+        let name: String
+        let color: String
+    }
+    
     
 //    struct RollupProperty: Codable {
 //        let type: String
@@ -110,18 +129,20 @@ struct Task: Codable {
 //    }
     
     struct TitleProperty: Codable {
-        let type: String
-        let id: String
         let title: [TextValue]?
     }
     
     struct TextValue: Codable {
-        let href: String?
-        let text: Content?
-        let annotations: Annotations?
-        let type: String
         let plain_text: String?
     }
+    
+//    struct TextValue: Codable {
+//        let href: String?
+//        let text: Content?
+//        let annotations: Annotations?
+//        let type: String
+//        let plain_text: String?
+//    }
     
     struct Content: Codable {
         let content: String?
