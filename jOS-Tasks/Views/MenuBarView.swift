@@ -8,22 +8,34 @@ struct MenubarView: View {
     var body: some View {
         VStack {
             HStack {
-                if(notionController.currentOpenTimeEntries.count > 0) {
-                    Text("\(String(notionController.currentTimeEntry))").padding(10)
-                }
-                else {
-                    Text("No Current Task").padding(10)
-                }
-                    
+                Button(
+                    action: {
+                        let url = notionController.currentOpenTimeEntries[0].attachedTask?.url
+                        if (url != nil) {
+                            openUrlInNotion(from: url!)
+                            isMenuPresented = false
+                        }
+                        
+                    }) {
+                        Text(notionController.currentTimeEntry)
+                            .foregroundColor(.white)
+                        
+                        
+                    }
+                    .padding()
+                    .buttonStyle(PlainButtonStyle())
+                
+                
                 Spacer()
                 Button(action: {
                     notionController.stopCurrentTimeEntry()
-                    }) {
+                }) {
                     Text("End")
                         .foregroundColor(.white)
-                    }
-                    .padding()
                 }
+                .padding()
+            }
+        }
                 Button(action: {
                     notionController.createNewTask()
                     isMenuPresented = false
@@ -42,7 +54,7 @@ struct MenubarView: View {
             }
         }                
     }
-}
+
 
 struct MenuBarTaskRowView: View {
     let task: Task
@@ -75,6 +87,7 @@ struct MenuBarTaskRowView: View {
         .padding(.horizontal, 10)
         .cornerRadius(5)
         .padding(.vertical, 1)
+        .foregroundColor(.white)
     }
 }
 #endif
