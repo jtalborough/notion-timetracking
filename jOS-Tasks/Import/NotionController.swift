@@ -174,21 +174,28 @@ class NotionController: ObservableObject {
         
     }
 
-    func createNewTask() {
+    func createNewTaskWithTimer() {
+        let dateFormatter = DateFormatter()
+        dateFormatter.locale = Locale(identifier: "en_US_POSIX")
+        dateFormatter.dateFormat = "yyyy-MM-dd"
+        
+        // Generate a string for the current date
+        let currentDateStr = dateFormatter.string(from: Date())
+        
         // Set the default properties for the new task
         let properties: [String: Any] = [
-            "Task": [
-                "title": [
-                    [
-                        "text": [
-                            "content": ""
-                        ]
-                    ]
-                ]
-            ],
-            "Status": [
-                "status": [
-                    "name": "Focus"
+//            "Task": [
+//                "title": [
+//                    [
+//                        "text": [
+//                            "content": "Your Task Title"  // Add your task title here
+//                        ]
+//                    ]
+//                ]
+//            ],
+            "DoDate": [
+                "date": [
+                    "start": currentDateStr  // Insert the current date string here
                 ]
             ]
         ]
@@ -296,7 +303,19 @@ class NotionController: ObservableObject {
 
     func updateCurrentTimer() {
         if !currentOpenTimeEntries.isEmpty {
-            let title = String(currentOpenTimeEntries[0].attachedTask?.properties?.Task?.title?[0].plain_text ?? "")
+            var title = "No Title"
+            if let firstEntry = currentOpenTimeEntries.first,
+               let taskTitleArray = firstEntry.attachedTask?.properties?.Task?.title,
+               !taskTitleArray.isEmpty,
+               let taskTitle = taskTitleArray[0].plain_text,
+               !taskTitle.isEmpty {
+                // Now you have a non-empty taskTitle string to use
+                title = taskTitle
+            }
+//            let title = "No Title"
+//            if(!currentOpenTimeEntries[0].attachedTask?.properties?.Task?.title) {
+//                let title = String(currentOpenTimeEntries[0].attachedTask?.properties?.Task?.title?[0].plain_text ?? "")
+//            }
             
             if let startTimeString = currentOpenTimeEntries[0].properties?.startTime?.date?.start {
                 let dateFormatter = ISO8601DateFormatter()
@@ -333,7 +352,7 @@ class NotionController: ObservableObject {
         let dateFormatter = DateFormatter()
         dateFormatter.locale = Locale(identifier: "en_US_POSIX")
         dateFormatter.dateFormat = "yyyy-MM-dd'T'HH:mm:ss.SSSXXXXX"
-        dateFormatter.timeZone = TimeZone(secondsFromGMT: 0)
+        dateFormatter.timeZone = TimeZone.current
         
         let endTimeString = dateFormatter.string(from: Date())
     

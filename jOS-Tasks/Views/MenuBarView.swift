@@ -20,7 +20,6 @@ struct MenubarView: View {
                         Text(notionController.currentTimeEntry)
                             .foregroundColor(.white)
                         
-                        
                     }
                     .padding()
                     .buttonStyle(PlainButtonStyle())
@@ -37,11 +36,12 @@ struct MenubarView: View {
             }
         }
                 Button(action: {
-                    notionController.createNewTask()
+                    notionController.createNewTaskWithTimer()
                     isMenuPresented = false
                 }) {
                     Text("Create New")
                         .frame(minWidth: 0, maxWidth: .infinity, alignment: .leading)
+                        
                 }
                 .buttonStyle(PlainButtonStyle())
                 .padding(10)
@@ -64,9 +64,7 @@ struct MenuBarTaskRowView: View {
     var body: some View {
         VStack(alignment: .leading, spacing: 5) {
             HStack {
-                Button("Done") {
-                    notionController.markTaskComplete(taskId: task.id)
-                }
+                Button("End Timer") { notionController.markTaskComplete(taskId: task.id)}.buttonStyle(ButtonStyle_Standard())
                 Button(action: {
                     openUrlInNotion(from: task.url!)
                     isMenuPresented = false
@@ -87,7 +85,6 @@ struct MenuBarTaskRowView: View {
         .padding(.horizontal, 10)
         .cornerRadius(5)
         .padding(.vertical, 1)
-        .foregroundColor(.white)
     }
 }
 #endif

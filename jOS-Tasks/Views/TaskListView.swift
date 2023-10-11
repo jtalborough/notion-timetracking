@@ -28,7 +28,7 @@ struct TaskListView: View {
                 
                 Section {
                     Button("Create New Task") {
-                        notionController.createNewTask()
+                        notionController.createNewTaskWithTimer()
                     }
                 }
             }

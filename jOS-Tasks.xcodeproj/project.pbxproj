@@ -8,6 +8,8 @@
 
 /* Begin PBXBuildFile section */
 		6B667B672ACC722E00818722 /* helpers.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6B667B662ACC722E00818722 /* helpers.swift */; };
+		6B835F342AD6A00600B475D1 /* ButtonStyle_Standard.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6B835F332AD6A00600B475D1 /* ButtonStyle_Standard.swift */; };
+		6B835F372AD6A3E900B475D1 /* ButtonStyle_Example.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6B835F362AD6A3E900B475D1 /* ButtonStyle_Example.swift */; };
 		6B92818E2ACAC57C00E39EF4 /* jOS_TasksApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6B92818D2ACAC57C00E39EF4 /* jOS_TasksApp.swift */; };
 		6B9281902ACAC57C00E39EF4 /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6B92818F2ACAC57C00E39EF4 /* ContentView.swift */; };
 		6B9281922ACAC57E00E39EF4 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 6B9281912ACAC57E00E39EF4 /* Assets.xcassets */; };
@@ -34,6 +36,8 @@
 
 /* Begin PBXFileReference section */
 		6B667B662ACC722E00818722 /* helpers.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = helpers.swift; sourceTree = "<group>"; };
+		6B835F332AD6A00600B475D1 /* ButtonStyle_Standard.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ButtonStyle_Standard.swift; sourceTree = "<group>"; };
+		6B835F362AD6A3E900B475D1 /* ButtonStyle_Example.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ButtonStyle_Example.swift; sourceTree = "<group>"; };
 		6B92818A2ACAC57C00E39EF4 /* jOS-Tasks.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "jOS-Tasks.app"; sourceTree = BUILT_PRODUCTS_DIR; };
 		6B92818D2ACAC57C00E39EF4 /* jOS_TasksApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = jOS_TasksApp.swift; sourceTree = "<group>"; };
 		6B92818F2ACAC57C00E39EF4 /* ContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentView.swift; sourceTree = "<group>"; };
@@ -72,6 +76,15 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
+		6B835F352AD6A3B100B475D1 /* ButtonStyles */ = {
+			isa = PBXGroup;
+			children = (
+				6B835F332AD6A00600B475D1 /* ButtonStyle_Standard.swift */,
+				6B835F362AD6A3E900B475D1 /* ButtonStyle_Example.swift */,
+			);
+			path = ButtonStyles;
+			sourceTree = "<group>";
+		};
 		6B9281812ACAC57C00E39EF4 = {
 			isa = PBXGroup;
 			children = (
@@ -91,6 +104,7 @@
 		6B92818C2ACAC57C00E39EF4 /* jOS-Tasks */ = {
 			isa = PBXGroup;
 			children = (
+				6B835F352AD6A3B100B475D1 /* ButtonStyles */,
 				6BC8BD262ACAD79200B0D8A7 /* Info.plist */,
 				6B92818D2ACAC57C00E39EF4 /* jOS_TasksApp.swift */,
 				6BC8BD272ACADA5800B0D8A7 /* Views */,
@@ -234,6 +248,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				6B835F342AD6A00600B475D1 /* ButtonStyle_Standard.swift in Sources */,
 				6B667B672ACC722E00818722 /* helpers.swift in Sources */,
 				6B9281902ACAC57C00E39EF4 /* ContentView.swift in Sources */,
 				6B9281BF2ACAC86F00E39EF4 /* MainView.swift in Sources */,
@@ -246,6 +261,7 @@
 				6B9281BD2ACAC86800E39EF4 /* PrefrencesView.swift in Sources */,
 				6B9281C12ACAC87300E39EF4 /* MenuBarView.swift in Sources */,
 				6B9281C52ACAC87E00E39EF4 /* NotionAPI.swift in Sources */,
+				6B835F372AD6A3E900B475D1 /* ButtonStyle_Example.swift in Sources */,
 				6B9281C92ACAC88500E39EF4 /* TaskStructure.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
