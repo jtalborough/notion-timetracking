@@ -28,8 +28,7 @@ struct notion_timetrackingApp: App {
                 .environmentObject(notionController)
                 .onAppear {
                     loadFromKeychain()
-                    notionController.GetOpenTasks()
-                    notionController.GetOpenTimeTickets()
+                    notionController.startPolling()
                 }
         }
         MenuBarExtra("\(String(notionController.currentTimeEntry))", content:
@@ -42,14 +41,13 @@ struct notion_timetrackingApp: App {
         }).menuBarExtraStyle(.window)
             .menuBarExtraAccess(isPresented: $isMenuPresented) { statusItem in // <-- the magic ✨
             }
+        // htis looks doubled may need to be commented out.
         WindowGroup {
             MainView()
                 .environmentObject(globalSettings)
                 .environmentObject(notionController)
                 .onAppear {
                     loadFromKeychain()
-                    notionController.GetOpenTimeTickets()
-                    notionController.GetOpenTasks()
                 }
         }
     }

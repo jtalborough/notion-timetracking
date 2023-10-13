@@ -14,7 +14,9 @@ class NotionController: ObservableObject {
     @Published var tasks: [Task] = []
     @Published var currentOpenTimeEntries: [TimeEntry]
     @Published var currentTimeEntry: String = ""
+    @Published var todayTotalTime: String = ""
     var cancellables = Set<AnyCancellable>()
+    
     
     var databaseId: String {
         return globalSettings.TimeTrackingDatatbaseId
@@ -24,10 +26,15 @@ class NotionController: ObservableObject {
     
     init() {
         self.currentOpenTimeEntries = []
-        self.startPolling()
     }
     
+    
     func startPolling() {
+        
+        self.sumTimeEntriesForToday()
+        self.GetOpenTimeTickets()
+        self.GetOpenTasks()
+        
         // First poll: No delay
         Timer.publish(every: 30, on: .main, in: .common)
             .autoconnect()
@@ -44,20 +51,20 @@ class NotionController: ObservableObject {
                 self.GetOpenTimeTickets()
             }
             .store(in: &cancellables)
+        // First poll: No delay
+        Timer.publish(every: 120, on: .main, in: .common)
+            .autoconnect()
+            .sink { _ in
+                self.sumTimeEntriesForToday()
+            }
+            .store(in: &cancellables)
     }
 
-    // writte a funciton for setting the stop time 5 min earlier
-    func SetStopTime(numberOfMinBack: Int)
-    {
-            
-        
-    }
     
     func GetOpenTasks() {
-        let dateFormatter = ISO8601DateFormatter()
-        dateFormatter.formatOptions = [.withInternetDateTime, .withDashSeparatorInDate, .withColonSeparatorInTime]
         
-        // Get today's date in ISO 8601 format
+        let dateFormatter = ISO8601DateFormatter()
+        dateFormatter.formatOptions = [.withFullDate, .withDashSeparatorInDate]
         let todayDateString = dateFormatter.string(from: Date())
         
         let filterParameters: [String: Any] = [
@@ -80,7 +87,7 @@ class NotionController: ObservableObject {
             "sorts": [
                 [
                     "property": "DoDate",
-                    "direction": "descending"
+                    "direction": "ascending"
                 ]
             ]
         ]
@@ -140,6 +147,74 @@ class NotionController: ObservableObject {
             self.tasks = newTasks
         }
     }
+    
+    func sumTimeEntriesForToday() {
+        let dateFormatter = DateFormatter()
+        dateFormatter.dateFormat = "yyyy-MM-dd" // For example, "2023-10-12"
+
+        // Get today's date without the time component
+        let todayDateString = dateFormatter.string(from: Date())
+
+        
+        let filterParameters: [String: Any] = [
+            "filter": [
+                "and": [
+                    ["property": "StartTime", "date": ["equals": todayDateString]],
+                    ["property": "EndTime", "date": ["equals": todayDateString]]
+                ]
+            ]
+        ]
+        
+        let dateFormatterParse = DateFormatter()
+        dateFormatterParse.dateFormat = "yyyy-MM-dd'T'HH:mm:ss.SSSZZZZZ"
+        dateFormatterParse.locale = Locale(identifier: "en_US_POSIX")
+        dateFormatterParse.timeZone = TimeZone(secondsFromGMT: 0)
+        
+        notionAPI.queryDatabase(databaseId: globalSettings.TimeTrackingDatatbaseId, parameters: filterParameters) { (jsonResponse, error) in
+            if let error = error {
+                print("Error querying Notion database: \(error)")
+                return
+            }
+            
+            guard let json = jsonResponse else {
+                print("No data received.")
+                return
+            }
+            
+            if let resultsArray = json["results"].array {
+                var totalTime: TimeInterval = 0
+                
+                for result in resultsArray {
+                    if let startTimeString = result["properties"]["StartTime"]["date"]["start"].string,
+                       let endTimeString = result["properties"]["EndTime"]["date"]["start"].string {
+                        
+                        if let startTime = dateFormatterParse.date(from: startTimeString),
+                           let endTime = dateFormatterParse.date(from: endTimeString) {
+                            
+                            let timeSpan = endTime.timeIntervalSince(startTime)
+                            totalTime += timeSpan
+                        } else {
+                            print("Failed to convert date strings to Date objects")
+                            print("Start time string: \(startTimeString)")
+                            print("End time string: \(endTimeString)")
+                        }
+                    }
+                }
+
+                
+                let roundedTotalTime = round(totalTime / 300) * 300 // Round to nearest 5 minutes (300 seconds)
+
+                let hours = Int(roundedTotalTime) / 3600
+                let minutes = (Int(roundedTotalTime) % 3600) / 60
+
+                self.todayTotalTime = String("\(hours)h \(minutes)m")
+                print("Total time for today (rounded to nearest 5 minutes): \(hours)h \(minutes)m")
+
+                self.updateCurrentTimer()
+            }
+        }
+    }
+
 
     func markTaskComplete(taskId: String) {
         // Set the default properties for the new task
@@ -342,8 +417,62 @@ class NotionController: ObservableObject {
         } else {
             currentTimeEntry = "No Current Task"
         }
+        currentTimeEntry = String("\(currentTimeEntry) | \(todayTotalTime)")
     }
     
+    func updateCurrentTimerStartTime(minutes: Int) {
+        // Fetch the original start time of the current time entry (as a String)
+        guard let originalStartTimeString = currentOpenTimeEntries.first?.properties?.startTime?.date?.start else {
+            print("Failed to fetch original start time.")
+            return
+        }
+        
+        // Convert the original start time String to a Date object
+        let dateFormatter = DateFormatter()
+        dateFormatter.locale = Locale(identifier: "en_US_POSIX")
+        dateFormatter.dateFormat = "yyyy-MM-dd'T'HH:mm:ss.SSSXXXXX"
+        dateFormatter.timeZone = TimeZone.current
+        
+        guard let originalStartTime = dateFormatter.date(from: originalStartTimeString) else {
+            print("Failed to convert original start time to Date.")
+            return
+        }
+        
+        // Calculate the new start time based on the original start time and the number of minutes provided
+        guard let newStartTime = Calendar.current.date(byAdding: .minute, value: minutes, to: originalStartTime) else {
+            print("Failed to calculate new start time.")
+            return
+        }
+        
+        let newStartTimeString = dateFormatter.string(from: newStartTime)
+        
+        // Prepare the parameters to update the Notion database
+        let updateParameters: [String: Any] = [
+            "properties": [
+                "StartTime": [
+                    "date": [
+                        "start": newStartTimeString
+                    ]
+                ]
+            ]
+        ]
+        
+        // Update the Notion database
+        notionAPI.setPageDetails(pageId: currentOpenTimeEntries[0].id!, parameters: updateParameters) { (boolResponse, error) in
+            if let error = error {
+                print("Error updating start time: \(error)")
+                return
+            }
+            
+            if boolResponse {
+                print("Successfully updated start time.")
+                self.GetOpenTimeTickets()
+            }
+        }
+    }
+
+
+
     func startNewTimeEntry(task: Task) {
         startNewTimeEntry(taskId: task.id)
     }

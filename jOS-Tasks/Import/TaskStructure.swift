@@ -28,7 +28,7 @@ struct Task: Codable {
             let function: String
             let array: [String] // This could be more complex depending on the data
         }
-        
+        let ProjectName: ProjectName
         //let `Parent item`: RelationProperty?
         let Edited: TimeProperty?
         let Done: CheckboxProperty?
@@ -107,6 +107,17 @@ struct Task: Codable {
         let type: String
         let id: String
         let number: Double?
+    }
+    
+    struct ProjectName: Codable {
+        let formula: Formula
+        let id: String
+        let type: String
+    }
+
+    struct Formula: Codable {
+        let string: String
+        let type: String
     }
     
     struct StatusProperty: Codable {
