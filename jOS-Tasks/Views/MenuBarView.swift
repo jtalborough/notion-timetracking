@@ -7,72 +7,50 @@ struct MenubarView: View {
     
     let timeAdjustments = [-60, -45, -30, -15, -10, -5, 5, 10, 15, 30, 45, 60]
     @State private var selectedTimeAdjustment: Int? = nil
-    
-    private func handleTimeAdjustment(_ newValue: Int?) {
-        if let min = newValue {
-            notionController.updateCurrentTimerStartTime(minutes: min)
-            DispatchQueue.main.async {
-                selectedTimeAdjustment = nil // Reset the picker
-            }
-        }
-    }
-    
+        
     var body: some View {
         VStack {
             HStack {
-                Button(
-                    action: {
-                        let url = notionController.currentOpenTimeEntries[0].attachedTask?.url
-                        if (url != nil) {
-                            openUrlInNotion(from: url!)
-                            isMenuPresented = false
-                        }
-                        
-                    }) {
-                        Text(notionController.currentTimeEntry)
-                            .foregroundColor(.white)
-                        
+                Button(notionController.currentTimeEntry) {
+                    if let url = notionController.currentOpenTimeEntries[0].attachedTask?.url {
+                        openUrlInNotion(from: url)
+                        isMenuPresented = false
                     }
-                    .padding()
-                    .buttonStyle(PlainButtonStyle())
-                
+                }.padding().buttonStyle(PlainButtonStyle())
                 Spacer()
-                Button(action: {
-                    notionController.stopCurrentTimeEntry()
-                }) {
-                    Text("End")
-                        .foregroundColor(.white)
-                }
-                .padding()
-            }
+                Button("Done", action: { notionController.endTimeEntry(entry: notionController.currentOpenTimeEntries[0] ) }).buttonStyle(ButtonStyle_Red())
+                Button("End", action: { notionController.stopCurrentTimeEntry() }).buttonStyle(ButtonStyle_Standard())
+            }.padding(10)
             
             // New row of segmented buttons for time adjustments
-                       HStack(spacing: 2) {
-                           ForEach(timeAdjustments, id: \.self) { min in
-                               Button(action: {
-                                   notionController.updateCurrentTimerStartTime(minutes: min)
-                               }) {
-                                   Text("\(min < 0 ? "" : "+")\(min)")
-                                       .frame(minWidth: 25, minHeight: 10)  // Reduced minimum width
-                                       .padding(EdgeInsets(top: 4, leading: 8, bottom: 4, trailing: 8))  // Reduced padding
-                                       .foregroundColor(.white)
-                               }
-                               //.background(min < 0 ? Color.red : Color(red: 0, green: 0.5, blue: 0))  // Darker green
-                               .cornerRadius(8)
-                           }
-                       }
-                       .padding(.top, 10)
-            
-            Button(action: {
-                notionController.createNewTaskWithTimer()
-                isMenuPresented = false
-            }) {
-                Text("Create New")
-                    .frame(minWidth: 0, maxWidth: .infinity, alignment: .leading)
+           HStack(spacing: 2) {
+               ForEach(timeAdjustments, id: \.self) { min in
+                   Button(action: {
+                          notionController.updateCurrentTimerStartTime(minutes: min)
+                        }) {
+                          Text("\(min < 0 ? "" : "+")\(min)")
+                              .frame(minWidth: 25, minHeight: 10)  // Reduced minimum width
+                              .padding(EdgeInsets(top: 4, leading: 8, bottom: 4, trailing: 8))  // Reduced padding
+                              .foregroundColor(.white)
+                  }
+                      //.background(min < 0 ? Color.red : Color(red: 0, green: 0.5, blue: 0))  // Darker green
+                  .cornerRadius(8)
+                }
+            }.padding(10)
+
+            HStack {
+                Spacer()  // Pushes the following items to the right
+                
+                Button("New Timed") { notionController.createNewTaskWithTimer(); isMenuPresented = false }
+                    .buttonStyle(ButtonStyle_Standard())
+                    .padding(1)
+                
+                Button("New Inbox") { notionController.createNewTask(); isMenuPresented = false }
+                    .buttonStyle(ButtonStyle_Standard())
                     
-            }
-            .buttonStyle(PlainButtonStyle())
-            .padding(10)
+            }.padding(10)
+
+
                     
             // Adding the List to display all task titles
             Divider()
@@ -88,9 +66,6 @@ struct MenubarView: View {
     
 }
 
-
-
-
 struct MenuBarTaskRowView: View {
     let task: Task
     @EnvironmentObject var notionController: NotionController
@@ -99,7 +74,7 @@ struct MenuBarTaskRowView: View {
     var body: some View {
         VStack(alignment: .leading, spacing: 5) {
             HStack {
-                Button("Done") { notionController.markTaskComplete(taskId: task.id)}.buttonStyle(ButtonStyle_Standard())
+                Button("Done") { notionController.markTaskComplete(taskId: task.id)}.buttonStyle(ButtonStyle_Red())
                 Button(action: {
                     openUrlInNotion(from: task.url!)
                     isMenuPresented = false
@@ -115,8 +90,8 @@ struct MenuBarTaskRowView: View {
                     openUrlInNotion(from: task.url!)
                     notionController.startNewTimeEntry(task: task)
                     isMenuPresented = false
-                }
-            }.frame(minWidth: 556)
+                }.buttonStyle(ButtonStyle_Standard())
+            }.frame(minWidth: 700)
         }
         .padding(.horizontal, 10)
         .cornerRadius(5)

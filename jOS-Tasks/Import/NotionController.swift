@@ -253,21 +253,10 @@ class NotionController: ObservableObject {
         let dateFormatter = DateFormatter()
         dateFormatter.locale = Locale(identifier: "en_US_POSIX")
         dateFormatter.dateFormat = "yyyy-MM-dd"
-        
-        // Generate a string for the current date
+
         let currentDateStr = dateFormatter.string(from: Date())
-        
-        // Set the default properties for the new task
+
         let properties: [String: Any] = [
-//            "Task": [
-//                "title": [
-//                    [
-//                        "text": [
-//                            "content": "Your Task Title"  // Add your task title here
-//                        ]
-//                    ]
-//                ]
-//            ],
             "DoDate": [
                 "date": [
                     "start": currentDateStr  // Insert the current date string here
@@ -275,14 +264,10 @@ class NotionController: ObservableObject {
             ]
         ]
         
-        // Prepare the parameters for the API call
         let parameters: [String: Any] = [
             "properties": properties
         ]
-        
 
-        
-        // Make the API call to create a new task
         notionAPI.createNewDatabaseEntry(databaseId: globalSettings.TaskDatatbaseId, parameters: parameters) { (jsonResponse, error) in
             if let error = error {
                 print("Failed to create new task: \(error)")
@@ -303,6 +288,32 @@ class NotionController: ObservableObject {
         }
     }
 
+    func createNewTask() {
+        let parameters: [String: Any] = [
+            "properties":  [
+                "status": [
+                    "equals": "ToDo"
+                ]
+            ]
+        ]
+        notionAPI.createNewDatabaseEntry(databaseId: globalSettings.TaskDatatbaseId, parameters: parameters) { (jsonResponse, error) in
+            if let error = error {
+                print("Failed to create new task: \(error)")
+                return
+            }
+
+            let json = JSON(jsonResponse ?? "")
+            if let urlResponse = json["url"].string {
+                openUrlInNotion(from: urlResponse)
+            }
+            if let taskId = json["id"].string {
+                print("Successfully created new task. Task ID: \(taskId)")
+            } else {
+                print("Received empty or invalid JSON response.")
+            }
+        }
+        
+    }
     func GetOpenTimeTickets() {
         let filterParameters: [String: Any] = [
             "filter": [
