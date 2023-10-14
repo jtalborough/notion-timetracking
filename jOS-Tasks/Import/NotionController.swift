@@ -291,8 +291,10 @@ class NotionController: ObservableObject {
     func createNewTask() {
         let parameters: [String: Any] = [
             "properties":  [
-                "status": [
-                    "equals": "ToDo"
+                "Status": [
+                    "status": [
+                        "name": "Done"
+                    ]
                 ]
             ]
         ]
