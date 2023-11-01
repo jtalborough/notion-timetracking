@@ -5,6 +5,29 @@ struct Task: Codable {
         let temp = self.properties?.Task?.title?.first?.plain_text ?? ""
         return (temp)
     }
+    var DoTime: String {
+        let date = self.properties?.DoDate?.date?.start ?? ""
+        
+        if date.contains("T") {
+            let isoFormatter = ISO8601DateFormatter()
+            isoFormatter.formatOptions = [.withInternetDateTime, .withFractionalSeconds]
+            if let fullDate = isoFormatter.date(from: date) {
+                let timeFormatter = DateFormatter()
+                timeFormatter.locale = Locale(identifier: "en_US_POSIX")
+                timeFormatter.dateFormat = "HH:mm"
+                
+                let timeString = timeFormatter.string(from: fullDate)
+                return timeString
+            }
+            else {
+                return String("")
+            }
+        }
+        else {
+            return String("")
+        }
+        
+    }
     struct Properties: Codable {
         struct DateValue: Codable {
             let start: String?
@@ -186,7 +209,7 @@ struct Task: Codable {
     let archived: Bool?
     let last_edited_time: String?
     let object: String
-    let cover: String?
+ 
     let public_url: String?
     let created_time: String?
     let properties: Properties?

@@ -18,7 +18,12 @@ struct MenubarView: View {
                     }
                 }.padding().buttonStyle(PlainButtonStyle())
                 Spacer()
-                Button("Done", action: { notionController.endTimeEntry(entry: notionController.currentOpenTimeEntries[0] ) }).buttonStyle(ButtonStyle_Red())
+                Button("Done", action: {
+                    let task = notionController.currentOpenTimeEntries[0].attachedTask
+                    let timeEntry = notionController.currentOpenTimeEntries[0]
+                    notionController.endTimeEntry(entry: timeEntry)
+                    notionController.markTaskComplete(taskId: task!.id)
+                }).buttonStyle(ButtonStyle_Red())
                 Button("End", action: { notionController.stopCurrentTimeEntry() }).buttonStyle(ButtonStyle_Standard())
             }.padding(10)
             
@@ -38,6 +43,21 @@ struct MenubarView: View {
                 }
             }.padding(10)
 
+            HStack(spacing: 2) {
+                ForEach(timeAdjustments, id: \.self) { min in
+                    Button(action: {
+                            notionController.updateCurrentTimerEndTime(minutes: min)
+                         }) {
+                           Text("\(min < 0 ? "" : "+")\(min)")
+                               .frame(minWidth: 25, minHeight: 10)  // Reduced minimum width
+                               .padding(EdgeInsets(top: 4, leading: 8, bottom: 4, trailing: 8))  // Reduced padding
+                               .foregroundColor(.white)
+                   }
+                       //.background(min < 0 ? Color.red : Color(red: 0, green: 0.5, blue: 0))  // Darker green
+                   .cornerRadius(8)
+                 }
+             }.padding(10)
+            
             HStack {
                 Spacer()  // Pushes the following items to the right
                 
@@ -79,7 +99,7 @@ struct MenuBarTaskRowView: View {
                     openUrlInNotion(from: task.url!)
                     isMenuPresented = false
                 }) {
-                    Text(task.title)
+                    Text(String("\(task.DoTime) \(task.title)"))
                             .frame(minWidth: 0, maxWidth: .infinity, alignment: .leading)
                 }
                 .buttonStyle(PlainButtonStyle())

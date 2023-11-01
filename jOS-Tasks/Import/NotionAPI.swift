@@ -5,7 +5,7 @@ import Alamofire
 import SwiftyJSON
 
 class NotionAPI {
-    let debug = true
+    let debug = false
     let globalSettings = GlobalSettings.shared
     
     
