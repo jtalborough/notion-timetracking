@@ -531,7 +531,8 @@ class NotionController: ObservableObject {
             
             if boolResponse {
                 print("Successfully updated end time.")
-                self.stopCurrentTimeEntry()
+                // self.stopCurrentTimeEntry()
+                self.GetOpenTimeTickets()
             }
         }
         

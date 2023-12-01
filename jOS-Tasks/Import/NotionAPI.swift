@@ -76,7 +76,10 @@ class NotionAPI {
             "Authorization": "Bearer \(accessToken)",
             "Notion-Version": "2022-06-28"
         ]
-        
+        if self.debug {
+            print("Debug: Sending Set Page Details")
+            print("Debug: parameters: \(parameters)")
+        }
         let url = "https://api.notion.com/v1/pages/\(pageId)"
         AF.request(url, method: .patch, parameters: parameters, encoding: JSONEncoding.default, headers: headers).responseJSON { response in
             switch response.result {
