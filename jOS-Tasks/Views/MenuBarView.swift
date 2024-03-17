@@ -31,12 +31,36 @@ struct MenubarView: View {
                     let timeEntry = notionController.currentOpenTimeEntries[0]
                     notionController.endTimeEntry(entry: timeEntry)
                     notionController.markTaskComplete(taskId: task!.id)
-                }).buttonStyle(ButtonStyle_Red())
-                Button("End", action: { notionController.stopCurrentTimeEntry() }).buttonStyle(ButtonStyle_Standard())
+                })
+                .buttonStyle(ButtonStyle_Red())
+                .frame(width: 100) // Set the minimum width for the button
+                .fixedSize(horizontal: true, vertical: false) // Ensures the frame modifier's size is applied as is
+
+                Button("End", action: { notionController.stopCurrentTimeEntry() })
+                .buttonStyle(ButtonStyle_Standard())
+                .frame(width: 100) // Set the minimum width for the button
+                .fixedSize(horizontal: true, vertical: false) // Ensures the frame modifier's size is applied as is
             }.padding(10)
-            // Adding the List to display all task titles
-            Divider().padding(10)
+
+            // Other UI elements...
+
+            HStack {
+                Spacer()  // Pushes the following items to the right
+
+                Button("New Timed") { notionController.createNewTaskWithTimer(); isMenuPresented = false }
+                    .buttonStyle(ButtonStyle_Standard())
+                    .padding(1)
+                    .frame(minWidth: 100) // Set the minimum width for the button
+                    .fixedSize(horizontal: true, vertical: false) // Ensures the frame modifier's size is applied as is
+
+                Button("New Inbox") { notionController.createNewTask(); isMenuPresented = false }
+                    .buttonStyle(ButtonStyle_Standard())
+                    .frame(minWidth: 100) // Set the minimum width for the button
+                    .fixedSize(horizontal: true, vertical: false) // Ensures the frame modifier's size is applied as is
+            }.padding(10)
+        
             
+            Divider().padding(10)
             Text("Adjust Start Time")
                         .font(.headline) // Optional: Adjust the font style as needed
                         .padding(0) // Optional: Adjust padding as needed
@@ -75,19 +99,7 @@ struct MenubarView: View {
                    .cornerRadius(8)
                  }
              }.padding(10)
-            Divider()
             
-            HStack {
-                Spacer()  // Pushes the following items to the right
-                
-                Button("New Timed") { notionController.createNewTaskWithTimer(); isMenuPresented = false }
-                    .buttonStyle(ButtonStyle_Standard())
-                    .padding(1)
-                
-                Button("New Inbox") { notionController.createNewTask(); isMenuPresented = false }
-                    .buttonStyle(ButtonStyle_Standard())
-                    
-            }.padding(10)
 
 
                     
