@@ -11,14 +11,20 @@ struct MenubarView: View {
     var body: some View {
         VStack {
             HStack {
-                Button(notionController.currentTimeEntry) {
+                Button(action: {
                     if(notionController.currentOpenTimeEntries.count > 0) {
                         if let url = notionController.currentOpenTimeEntries[0].attachedTask?.url {
                             openUrlInNotion(from: url)
                             isMenuPresented = false
                         }
                     }
-                }.padding().buttonStyle(PlainButtonStyle())
+                }) {
+                    Text(notionController.currentTimeEntry)
+                        .font(.title) // Makes the font size larger, suitable for titles
+                        .fontWeight(.bold) // Makes the text bold
+                        .padding() // Adjust padding as needed
+                }
+                .buttonStyle(PlainButtonStyle())
                 Spacer()
                 Button("Done", action: {
                     let task = notionController.currentOpenTimeEntries[0].attachedTask
@@ -28,7 +34,13 @@ struct MenubarView: View {
                 }).buttonStyle(ButtonStyle_Red())
                 Button("End", action: { notionController.stopCurrentTimeEntry() }).buttonStyle(ButtonStyle_Standard())
             }.padding(10)
+            // Adding the List to display all task titles
+            Divider().padding(10)
             
+            Text("Adjust Start Time")
+                        .font(.headline) // Optional: Adjust the font style as needed
+                        .padding(0) // Optional: Adjust padding as needed
+
             // New row of segmented buttons for time adjustments
            HStack(spacing: 2) {
                ForEach(timeAdjustments, id: \.self) { min in
@@ -45,6 +57,10 @@ struct MenubarView: View {
                 }
             }.padding(10)
 
+            Text("Adjust End Time")
+                        .font(.headline) // Optional: Adjust the font style as needed
+                        .padding(0) // Optional: Adjust padding as needed
+
             HStack(spacing: 2) {
                 ForEach(timeAdjustments, id: \.self) { min in
                     Button(action: {
@@ -59,6 +75,7 @@ struct MenubarView: View {
                    .cornerRadius(8)
                  }
              }.padding(10)
+            Divider()
             
             HStack {
                 Spacer()  // Pushes the following items to the right
