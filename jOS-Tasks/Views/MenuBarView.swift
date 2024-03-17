@@ -12,9 +12,11 @@ struct MenubarView: View {
         VStack {
             HStack {
                 Button(notionController.currentTimeEntry) {
-                    if let url = notionController.currentOpenTimeEntries[0].attachedTask?.url {
-                        openUrlInNotion(from: url)
-                        isMenuPresented = false
+                    if(notionController.currentOpenTimeEntries.count > 0) {
+                        if let url = notionController.currentOpenTimeEntries[0].attachedTask?.url {
+                            openUrlInNotion(from: url)
+                            isMenuPresented = false
+                        }
                     }
                 }.padding().buttonStyle(PlainButtonStyle())
                 Spacer()

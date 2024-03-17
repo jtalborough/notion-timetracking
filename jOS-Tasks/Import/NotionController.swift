@@ -523,7 +523,7 @@ class NotionController: ObservableObject {
         ]
         
         // Update the Notion database
-        notionAPI.setPageDetails(pageId: currentOpenTimeEntries[0].id!, parameters: updateParameters) { (boolResponse, error) in
+            notionAPI.setPageDetails(pageId: currentOpenTimeEntries[0].id!, parameters: updateParameters) { (boolResponse, error) in
             if let error = error {
                 print("Error updating start time: \(error)")
                 return

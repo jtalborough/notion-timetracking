@@ -18,6 +18,7 @@ struct notion_timetrackingApp: App {
     @StateObject var notionController: NotionController = NotionController()
     let keychain = KeychainSwift()
     @State private var showingPreferences = false
+    @State var idleTime = 0
 
 
 #if os(macOS)
@@ -29,6 +30,12 @@ struct notion_timetrackingApp: App {
                 .onAppear {
                     loadFromKeychain()
                     notionController.startPolling()
+//                    Timer.scheduledTimer(withTimeInterval: 60, repeats: true) { _ in
+//                        idleTime = getIdleTime() ?? 0 // In nano-seconds
+//                        if idleTime >= 600  { // 10 minutes in nano-seconds
+//                            showWarningDialog(idleTime: idleTime)
+//                        }
+//                    }
                 }
         }
         MenuBarExtra("\(String(notionController.currentTimeEntry))", content:
@@ -50,6 +57,7 @@ struct notion_timetrackingApp: App {
                     loadFromKeychain()
                 }
         }
+        
     }
 #endif
 #if os(iOS)
@@ -94,6 +102,23 @@ struct notion_timetrackingApp: App {
             self.globalSettings.TaskDatatbaseId = taskDatabaseId
         }
     }
+    
+    func showWarningDialog(idleTime: Int) {
+        let idleTimeInMinutes = (idleTime / 60)
+        let alert = NSAlert()
+        alert.messageText = "You have been idle for \(Int(idleTimeInMinutes)) minute(s)"
+        alert.informativeText = "Do you want to stop the timer?"
+        alert.addButton(withTitle: "Yes")
+        alert.addButton(withTitle: "No")
+
+        let response = alert.runModal()
+        if response == .alertFirstButtonReturn {
+            self.notionController.updateCurrentTimerEndTime(minutes: (Int(idleTimeInMinutes) *  -1))
+        } else if response == .alertSecondButtonReturn {
+            
+        }
+    }
+
 }
 
 
