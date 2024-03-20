@@ -106,10 +106,13 @@ struct MenubarView: View {
             // Adding the List to display all task titles
             Divider()
                     
-            ForEach(notionController.tasks, id: \.id) { task in
-                MenuBarTaskRowView(task: task, isMenuPresented: $isMenuPresented)
-            }
-            
+            // ScrollView added here to make the list of tasks scrollable
+                        ScrollView {
+                            ForEach(notionController.tasks, id: \.id) { task in
+                                MenuBarTaskRowView(task: task, isMenuPresented: $isMenuPresented)
+                            }
+                        }.frame(minWidth: 0, maxWidth: .infinity, minHeight: 700, maxHeight: .infinity) // Adjust minHeight as needed
+
             
         }
         
