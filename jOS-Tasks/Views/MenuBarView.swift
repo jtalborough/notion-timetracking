@@ -111,7 +111,7 @@ struct MenubarView: View {
                             ForEach(notionController.tasks, id: \.id) { task in
                                 MenuBarTaskRowView(task: task, isMenuPresented: $isMenuPresented)
                             }
-                        }.frame(minWidth: 0, maxWidth: .infinity, minHeight: 700, maxHeight: .infinity) // Adjust minHeight as needed
+                        }.frame(minWidth: 0, maxWidth: .infinity, minHeight: 700     , maxHeight: .infinity) // Adjust minHeight as needed
 
             
         }
@@ -133,7 +133,7 @@ struct MenuBarTaskRowView: View {
                     openUrlInNotion(from: task.url!)
                     isMenuPresented = false
                 }) {
-                    Text(String("\(task.DoTime) \(task.title)"))
+                    Text(String("\(task.title)"))
                             .frame(minWidth: 0, maxWidth: .infinity, alignment: .leading)
                 }
                 .buttonStyle(PlainButtonStyle())
