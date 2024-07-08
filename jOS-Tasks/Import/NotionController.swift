@@ -545,20 +545,27 @@ class NotionController: ObservableObject {
     }
     
     func startNewTimeEntry(taskId: String) {
-        let dateFormatter = DateFormatter()
-        dateFormatter.locale = Locale(identifier: "en_US_POSIX")
-        dateFormatter.dateFormat = "yyyy-MM-dd'T'HH:mm:ss.SSSXXXXX"
-        dateFormatter.timeZone = TimeZone.current
+        // Formatter for the end time in the required ISO 8601 format
+        let isoDateFormatter = DateFormatter()
+        isoDateFormatter.locale = Locale(identifier: "en_US_POSIX")
+        isoDateFormatter.dateFormat = "yyyy-MM-dd'T'HH:mm:ss.SSSXXXXX"
+        isoDateFormatter.timeZone = TimeZone.current
+        let endTimeString = isoDateFormatter.string(from: Date())
         
-        let endTimeString = dateFormatter.string(from: Date())
-    
+        // Formatter for the name in the required "yyyy-MM-dd h:mm a" format
+        let nameDateFormatter = DateFormatter()
+        nameDateFormatter.locale = Locale(identifier: "en_US_POSIX")
+        nameDateFormatter.dateFormat = "yyyy-MM-dd h:mm a"
+        nameDateFormatter.timeZone = TimeZone.current
+        let nameDateString = nameDateFormatter.string(from: Date())
+        
         let tempParameters: [String: Any] = [
             "properties": [
                 "Name": [
                     "title": [
                         [
                             "text": [
-                                "content": "new entry"
+                                "content": nameDateString
                             ]
                         ]
                     ]
