@@ -467,9 +467,30 @@ class NotionController: ObservableObject {
         
         let newStartTimeString = dateFormatter.string(from: newStartTime)
         
+        // Convert the new start time back to a Date object to format the nameDateString
+        guard let newStartDate = dateFormatter.date(from: newStartTimeString) else {
+            print("Failed to convert new start time string to Date.")
+            return
+        }
+        
+        // Format the nameDateString in the desired format "yyyy-MM-dd h:mm a"
+        let nameDateFormatter = DateFormatter()
+        nameDateFormatter.locale = Locale(identifier: "en_US_POSIX")
+        nameDateFormatter.dateFormat = "yyyy-MM-dd h:mm a"
+        let nameDateString = nameDateFormatter.string(from: newStartDate)
+        
         // Prepare the parameters to update the Notion database
         let updateParameters: [String: Any] = [
             "properties": [
+                "Name": [
+                    "title": [
+                        [
+                            "text": [
+                                "content": nameDateString
+                            ]
+                        ]
+                    ]
+                ],
                 "StartTime": [
                     "date": [
                         "start": newStartTimeString
@@ -477,6 +498,7 @@ class NotionController: ObservableObject {
                 ]
             ]
         ]
+        
         
         // Update the Notion database
         notionAPI.setPageDetails(pageId: currentOpenTimeEntries[0].id!, parameters: updateParameters) { (boolResponse, error) in
