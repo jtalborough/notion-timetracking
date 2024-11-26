@@ -33,7 +33,7 @@ struct notion_timetrackingApp: App {
 //                    Timer.scheduledTimer(withTimeInterval: 60, repeats: true) { _ in
 //                        idleTime = getIdleTime() ?? 0 // In nano-seconds
 //                        if idleTime >= 600  { // 10 minutes in nano-seconds
-//                            showWarningDialog(idleTime: idleTime)
+//                            showWarningDialog(idleTe: idleTime)
 //                        }
 //                    }
                 }
