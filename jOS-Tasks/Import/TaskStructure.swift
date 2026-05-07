@@ -51,6 +51,7 @@ struct Task: Codable {
             let function: String
             let array: [String] // This could be more complex depending on the data
         }
+        let Recurrence: MultiSelectProperty?
         let ProjectName: ProjectName
         //let `Parent item`: RelationProperty?
         let Edited: TimeProperty?

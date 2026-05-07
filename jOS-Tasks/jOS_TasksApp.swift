@@ -20,6 +20,15 @@ struct notion_timetrackingApp: App {
     @State private var showingPreferences = false
     @State var idleTime = 0
 
+    init() {
+        // Load credentials before any polling or API calls happen
+        let kc = KeychainSwift()
+        let settings = GlobalSettings.shared
+        if let apiKey = kc.get("apiKey") { settings.apiKey = apiKey }
+        if let ttDbId = kc.get("timeTrackingDatabaseId") { settings.TimeTrackingDatatbaseId = ttDbId }
+        if let taskDbId = kc.get("taskDatabaseId") { settings.TaskDatatbaseId = taskDbId }
+        print("Loaded from keychain — apiKey empty: \(settings.apiKey.isEmpty), ttDb empty: \(settings.TimeTrackingDatatbaseId.isEmpty), taskDb empty: \(settings.TaskDatatbaseId.isEmpty)")
+    }
 
 #if os(macOS)
     var body: some Scene {
@@ -28,7 +37,6 @@ struct notion_timetrackingApp: App {
                 .environmentObject(globalSettings)
                 .environmentObject(notionController)
                 .onAppear {
-                    loadFromKeychain()
                     notionController.startPolling()
 //                    Timer.scheduledTimer(withTimeInterval: 60, repeats: true) { _ in
 //                        idleTime = getIdleTime() ?? 0 // In nano-seconds
@@ -43,21 +51,27 @@ struct notion_timetrackingApp: App {
             MenubarView(isMenuPresented: $isMenuPresented)
                 .introspectMenuBarExtraWindow { window in // <-- the magic ✨
                     window.animationBehavior = .utilityWindow
+                    // Observe each time the window becomes key (i.e. opens)
+                    // so we resize after SwiftUI's layout pass is done
+                    NotificationCenter.default.addObserver(
+                        forName: NSWindow.didBecomeKeyNotification,
+                        object: window,
+                        queue: .main
+                    ) { _ in
+                        let screenHeight = window.screen?.visibleFrame.height
+                            ?? NSScreen.main?.visibleFrame.height
+                            ?? 800
+                        let targetHeight = (screenHeight * 0.75).rounded()
+                        var frame = window.frame
+                        frame.origin.y = frame.maxY - targetHeight
+                        frame.size = NSSize(width: 720, height: targetHeight)
+                        window.setFrame(frame, display: true, animate: false)
+                    }
                 }
                 .environmentObject(notionController)
         }).menuBarExtraStyle(.window)
             .menuBarExtraAccess(isPresented: $isMenuPresented) { statusItem in // <-- the magic ✨
             }
-        // htis looks doubled may need to be commented out.
-        WindowGroup {
-            MainView()
-                .environmentObject(globalSettings)
-                .environmentObject(notionController)
-                .onAppear {
-                    loadFromKeychain()
-                }
-        }
-        
     }
 #endif
 #if os(iOS)

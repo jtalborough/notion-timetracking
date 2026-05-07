@@ -85,7 +85,7 @@ struct Properties: Codable {
         case endTime = "EndTime"
         case name = "Name"
         case startTime = "StartTime"
-        case tasksDB = "\u{1F4DC} TasksDB"
+        case tasksDB = "TasksDB"
     }
 
     init(

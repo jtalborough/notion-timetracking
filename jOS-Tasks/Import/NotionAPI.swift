@@ -5,7 +5,7 @@ import Alamofire
 import SwiftyJSON
 
 class NotionAPI {
-    let debug = false
+    let debug = true
     let globalSettings = GlobalSettings.shared
     
     
@@ -95,6 +95,24 @@ class NotionAPI {
             }
         }
         
+    }
+
+    func appendBlockChildren(pageId: String, blocks: [[String: Any]], completion: @escaping (Bool, Error?) -> Void) {
+        let headers: HTTPHeaders = [
+            "Authorization": "Bearer \(accessToken)",
+            "Notion-Version": "2022-06-28"
+        ]
+        let url = "https://api.notion.com/v1/blocks/\(pageId)/children"
+        let payload: [String: Any] = ["children": blocks]
+
+        AF.request(url, method: .patch, parameters: payload, encoding: JSONEncoding.default, headers: headers).responseJSON { response in
+            switch response.result {
+            case .success:
+                completion(true, nil)
+            case .failure(let error):
+                completion(false, error)
+            }
+        }
     }
 
     func createNewDatabaseEntry(databaseId: String, parameters: [String: Any], completion: @escaping (JSON?, Error?) -> Void) {

@@ -58,6 +58,15 @@ class NotionController: ObservableObject {
                 self.sumTimeEntriesForToday()
             }
             .store(in: &cancellables)
+
+        // Recurring task poll: every 5 minutes, with 60-second initial delay
+        Timer.publish(every: 300, on: .main, in: .common)
+            .autoconnect()
+            .delay(for: .seconds(60), scheduler: RunLoop.main)
+            .sink { _ in
+                self.pollRecurringTasks()
+            }
+            .store(in: &cancellables)
     }
 
     
@@ -69,17 +78,37 @@ class NotionController: ObservableObject {
         
         let filterParameters: [String: Any] = [
             "filter": [
-                "and": [
+                "or": [
                     [
-                        "property": "DoDate",
-                        "date": [
-                            "on_or_before": todayDateString
+                        "and": [
+                            [
+                                "property": "DoDate",
+                                "date": [
+                                    "on_or_before": todayDateString
+                                ]
+                            ],
+                            [
+                                "property": "Status",
+                                "status": [
+                                    "equals": "ToDo"
+                                ]
+                            ]
                         ]
                     ],
                     [
-                        "property": "Status",
-                        "status": [
-                            "equals": "ToDo"
+                        "and": [
+                            [
+                                "property": "DoDate",
+                                "date": [
+                                    "on_or_before": todayDateString
+                                ]
+                            ],
+                            [
+                                "property": "Status",
+                                "status": [
+                                    "equals": "FromRai"
+                                ]
+                            ]
                         ]
                     ]
                 ]
@@ -366,10 +395,11 @@ class NotionController: ObservableObject {
 
     func updateAttachedTask(for entry: TimeEntry) {
         guard let unwrappedPageId = entry.properties?.tasksDB?.relation?.first?.id else {
-            print("Page ID is nil.")
+            print("updateAttachedTask: no linked task ID on time entry \(entry.id ?? "?")")
             return
         }
 
+        print("updateAttachedTask: fetching task page \(unwrappedPageId)")
         notionAPI.getPageDetails(pageId: unwrappedPageId) { (jsonResponse, error) in
             if let error = error {
                 print("Error fetching page details: \(error)")
@@ -384,6 +414,7 @@ class NotionController: ObservableObject {
             do {
                 let data = try JSONSerialization.data(withJSONObject: jsonResponse.object, options: [])
                 let task = try JSONDecoder().decode(Task.self, from: data)
+                print("updateAttachedTask: decoded task title='\(task.title)' status='\(task.properties?.Status?.status?.name ?? "nil")'")
                 if (task.properties?.Status?.status?.name == "Done") {
                     self.stopCurrentTimeEntry()
                 } else {
@@ -392,7 +423,7 @@ class NotionController: ObservableObject {
                 self.updateCurrentTimer()
                 
             } catch {
-                print("Error parsing JSON: \(error)")
+                print("updateAttachedTask decode error: \(error)")
             }
         }
     }
@@ -597,7 +628,7 @@ class NotionController: ObservableObject {
                         "start": endTimeString
                     ]
                 ],
-                "\u{1F4DC} TasksDB": [
+                "TasksDB": [
                     "relation": [
                         ["id": taskId]
                     ]
@@ -665,6 +696,175 @@ class NotionController: ObservableObject {
         self.GetOpenTimeTickets()
     }
     
+    // MARK: - Recurring Task Processing
+
+    func pollRecurringTasks() {
+        let filterParameters: [String: Any] = [
+            "filter": [
+                "property": "Status",
+                "status": ["equals": "Done"]
+            ]
+        ]
+
+        notionAPI.queryDatabase(databaseId: globalSettings.TaskDatatbaseId, parameters: filterParameters) { (jsonResponse, error) in
+            if let error = error {
+                print("pollRecurringTasks: error querying done tasks: \(error)")
+                return
+            }
+            guard let json = jsonResponse, let resultsArray = json["results"].array else {
+                return
+            }
+
+            do {
+                let data = try JSONSerialization.data(withJSONObject: resultsArray.map { $0.object }, options: [])
+                let doneTasks = try JSONDecoder().decode([Task].self, from: data)
+                for task in doneTasks {
+                    self.processRecurringTask(task)
+                }
+            } catch {
+                print("pollRecurringTasks: decode error: \(error)")
+            }
+        }
+    }
+
+    func processRecurringTask(_ task: Task) {
+        guard let recurrenceTags = task.properties?.Recurrence?.multi_select,
+              let nextDate = calculateNextRecurringDate(from: recurrenceTags) else {
+            return // Not a recurring task or unrecognised pattern — leave it alone
+        }
+
+        let dateFormatter = DateFormatter()
+        dateFormatter.locale = Locale(identifier: "en_US_POSIX")
+        dateFormatter.dateFormat = "yyyy-MM-dd"
+        let completedOnString = dateFormatter.string(from: Date())
+        let nextDateString = dateFormatter.string(from: nextDate)
+
+        print("processRecurringTask: rescheduling '\(task.title)' → \(nextDateString)")
+
+        // 1. Reset the task: Status = ToDo, DoDate = next date
+        let resetParameters: [String: Any] = [
+            "properties": [
+                "Status": ["status": ["name": "ToDo"]],
+                "DoDate": ["date": ["start": nextDateString]]
+            ]
+        ]
+
+        notionAPI.setPageDetails(pageId: task.id, parameters: resetParameters) { (success, error) in
+            if let error = error {
+                print("processRecurringTask: failed to reset task \(task.id): \(error)")
+                return
+            }
+            guard success else { return }
+
+            print("processRecurringTask: reset task \(task.id) to \(nextDateString)")
+
+            // 2. Append a completion note to the task page
+            let blocks: [[String: Any]] = [
+                [
+                    "object": "block",
+                    "type": "paragraph",
+                    "paragraph": [
+                        "rich_text": [
+                            [
+                                "type": "text",
+                                "text": ["content": "Completed on: \(completedOnString) • Reset to: \(nextDateString)"]
+                            ]
+                        ]
+                    ]
+                ],
+                [
+                    "object": "block",
+                    "type": "divider",
+                    "divider": [:]
+                ]
+            ]
+
+            self.notionAPI.appendBlockChildren(pageId: task.id, blocks: blocks) { (success, error) in
+                if let error = error {
+                    print("processRecurringTask: failed to append note to \(task.id): \(error)")
+                } else {
+                    print("processRecurringTask: appended completion note to \(task.id)")
+                }
+                // Refresh the task list so the rescheduled task appears/disappears correctly
+                self.GetOpenTasks()
+            }
+        }
+    }
+
+    /// Parses the Recurrence multi-select tags and returns the next due date.
+    /// Supported patterns: rec-7d / rec_7d (days), rec-2w / rec_2w (weeks),
+    /// rec-1m / rec_1m (months), rec-weekly-mon (next weekday), rec-monthly-15 (day of month).
+    func calculateNextRecurringDate(from tags: [Task.MultiSelectObject]) -> Date? {
+        let relativePattern = try? NSRegularExpression(pattern: #"^rec[-_](\d+)([dwm])$"#, options: .caseInsensitive)
+        let weeklyPattern   = try? NSRegularExpression(pattern: #"^rec[-_]weekly[-_](\w+)$"#, options: .caseInsensitive)
+        let monthlyPattern  = try? NSRegularExpression(pattern: #"^rec[-_]monthly[-_](\d{1,2})$"#, options: .caseInsensitive)
+
+        let weekdayMap: [String: Int] = [
+            "mon": 2, "tue": 3, "wed": 4, "thu": 5, "fri": 6, "sat": 7, "sun": 1,
+            "monday": 2, "tuesday": 3, "wednesday": 4, "thursday": 5, "friday": 6, "saturday": 7, "sunday": 1
+        ]
+
+        let today = Calendar.current.startOfDay(for: Date())
+
+        for tag in tags {
+            let name = tag.name
+            let range = NSRange(name.startIndex..., in: name)
+
+            // rec-Nd / rec-Nw / rec-Nm
+            if let match = relativePattern?.firstMatch(in: name, range: range),
+               let countRange = Range(match.range(at: 1), in: name),
+               let unitRange  = Range(match.range(at: 2), in: name),
+               let count = Int(name[countRange]) {
+                let unit = String(name[unitRange]).lowercased()
+                var components = DateComponents()
+                switch unit {
+                case "d": components.day   = count
+                case "w": components.day   = count * 7
+                case "m": components.month = count
+                default: continue
+                }
+                if let next = Calendar.current.date(byAdding: components, to: today) {
+                    return next
+                }
+            }
+
+            // rec-weekly-mon
+            if let match = weeklyPattern?.firstMatch(in: name, range: range),
+               let dayRange = Range(match.range(at: 1), in: name) {
+                let dayStr = String(name[dayRange]).lowercased()
+                guard let targetWeekday = weekdayMap[dayStr] else { continue }
+                // Find the next occurrence of that weekday (at least tomorrow)
+                var daysAhead = (targetWeekday - Calendar.current.component(.weekday, from: today) + 7) % 7
+                if daysAhead == 0 { daysAhead = 7 }
+                if let next = Calendar.current.date(byAdding: .day, value: daysAhead, to: today) {
+                    return next
+                }
+            }
+
+            // rec-monthly-15
+            if let match = monthlyPattern?.firstMatch(in: name, range: range),
+               let dayRange = Range(match.range(at: 1), in: name),
+               let requestedDay = Int(name[dayRange]) {
+                let cal = Calendar.current
+                let currentDay = cal.component(.day, from: today)
+                var base = today
+                if currentDay >= requestedDay {
+                    // Schedule for next month
+                    base = cal.date(byAdding: .month, value: 1, to: today) ?? today
+                }
+                let year  = cal.component(.year,  from: base)
+                let month = cal.component(.month, from: base)
+                let daysInMonth = cal.range(of: .day, in: .month, for: base)?.count ?? 28
+                let clampedDay  = min(requestedDay, daysInMonth)
+                if let next = cal.date(from: DateComponents(year: year, month: month, day: clampedDay)) {
+                    return next
+                }
+            }
+        }
+
+        return nil // No matching recurrence pattern found
+    }
+
     func handleFailure() {
         // Same as your existing implementation
     }
