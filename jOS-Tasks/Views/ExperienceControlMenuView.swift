@@ -5,7 +5,15 @@ struct ExperienceControlMenuView: View {
     @ObservedObject var model: ExperienceControlModel
     @State private var showPlanned = true
     var body: some View {
-        VStack(alignment: .leading, spacing: 14) { header; Divider(); content; Divider(); footer }
+        VStack(alignment: .leading, spacing: 14) {
+            header
+            Divider()
+            ScrollView {
+                content.frame(maxWidth: .infinity, alignment: .leading)
+            }
+            Divider()
+            footer
+        }
             .padding(16).frame(width: 380).frame(maxHeight: 480)
     }
     private var header: some View {
@@ -33,6 +41,7 @@ struct ExperienceControlMenuView: View {
                 }
             }
         case .offline(let message): recoverable(message, icon: "wifi.slash")
+        case .unauthorized(let message): recoverable(message, icon: "person.crop.circle.badge.exclamationmark")
         case .stale(let message): recoverable(message, icon: "exclamationmark.arrow.triangle.2.circlepath")
         case .failure(let message): recoverable(message, icon: "exclamationmark.triangle")
         case .synced: syncedContent
@@ -44,6 +53,7 @@ struct ExperienceControlMenuView: View {
                 VStack(alignment: .leading, spacing: 8) {
                     Text("NOW").font(.caption.weight(.semibold)).foregroundStyle(.secondary)
                     Text(current.title).font(.title3.weight(.semibold)).lineLimit(2)
+                    Text(current.categoryKey?.capitalized ?? "Category unresolved").font(.caption).foregroundStyle(.secondary)
                     if let start = current.actualStartsAt { Text("Started \(start.formatted(date: .omitted, time: .shortened))").font(.caption).foregroundStyle(.secondary) }
                     Button("Stop current Experience") { _Concurrency.Task { await model.stopCurrent() } }.buttonStyle(.borderedProminent).tint(.red).disabled(model.isMutating)
                         .keyboardShortcut(".", modifiers: [.command]).accessibilityHint("Stops only the exact currently displayed actual session")
@@ -66,16 +76,19 @@ struct ExperienceControlMenuView: View {
         }
     }
     private func recoverable(_ message: String, icon: String) -> some View {
-        VStack(alignment: .leading, spacing: 10) { stateMessage(message, icon: icon); HStack { Button("Reload") { _Concurrency.Task { await model.reload() } }.keyboardShortcut("r", modifiers: [.command]); if model.canRetryCommand { Button("Retry this action") { _Concurrency.Task { await model.retryCommand() } } } } }
+        VStack(alignment: .leading, spacing: 10) {
+            stateMessage(message, icon: icon)
+            if model.canRetryCommand { Button("Retry this action") { _Concurrency.Task { await model.retryCommand() } } }
+        }
     }
     private func stateMessage(_ message: String, icon: String) -> some View { Label(message, systemImage: icon).frame(maxWidth: .infinity, alignment: .leading) }
     private var footer: some View {
         HStack {
-            Button("Reload") { _Concurrency.Task { await model.reload() } }.disabled(isSignedOut)
+            Button("Reload") { _Concurrency.Task { await model.recover() } }.disabled(!model.hasRetainedSession)
+                .keyboardShortcut("r", modifiers: [.command])
             Spacer()
-            Button("Sign Out") { _Concurrency.Task { await model.signOut() } }.disabled(isSignedOut).accessibilityHint("Clears the local Keychain session even if server revocation fails")
+            Button("Sign Out") { _Concurrency.Task { await model.signOut() } }.disabled(!model.hasRetainedSession).accessibilityHint("Clears the local Keychain session even if server revocation fails")
         }
     }
-    private var isSignedOut: Bool { if case .signedOut = model.state { return true }; return false }
 }
 #endif

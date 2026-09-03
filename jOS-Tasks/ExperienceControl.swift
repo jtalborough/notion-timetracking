@@ -9,26 +9,53 @@ struct ExperienceControlConfiguration: Equatable {
 
     var projectNamespace: String { supabaseURL.host?.split(separator: ".").first.map(String.init) ?? "unknown-project" }
 
+    init(supabaseURL: URL, publishableKey: String) throws {
+        guard Self.isAllowedURL(supabaseURL) else {
+            throw ExperienceControlError.configuration("A valid jOS Supabase URL is required.")
+        }
+        guard Self.isPublicKey(publishableKey) else {
+            throw ExperienceControlError.configuration("A public or publishable Supabase key is required.")
+        }
+        self.supabaseURL = supabaseURL
+        self.publishableKey = publishableKey
+    }
+
     static func bundled(bundle: Bundle = .main, environment: [String: String] = ProcessInfo.processInfo.environment) throws -> Self {
         let urlValue = environment["JOS_SUPABASE_URL"] ?? bundle.object(forInfoDictionaryKey: "JOSSupabaseURL") as? String ?? ""
         let keyValue = environment["JOS_SUPABASE_KEY"] ?? bundle.object(forInfoDictionaryKey: "JOSSupabaseKey") as? String ?? ""
-        guard let url = URL(string: urlValue), url.scheme == "https" || url.host == "127.0.0.1" || url.host == "localhost" else {
-            throw ExperienceControlError.configuration("A valid jOS Supabase URL is required.")
-        }
-        guard !keyValue.isEmpty, !keyValue.hasPrefix("sb_secret_"), Self.jwtRole(keyValue) != "service_role" else {
-            throw ExperienceControlError.configuration("A public or publishable Supabase key is required.")
-        }
-        return Self(supabaseURL: url, publishableKey: keyValue)
+        guard let url = URL(string: urlValue) else { throw ExperienceControlError.configuration("A valid jOS Supabase URL is required.") }
+        return try Self(supabaseURL: url, publishableKey: keyValue)
     }
 
-    private static func jwtRole(_ value: String) -> String? {
-        let parts = value.split(separator: ".")
-        guard parts.count == 3 else { return nil }
-        var payload = String(parts[1]).replacingOccurrences(of: "-", with: "+").replacingOccurrences(of: "_", with: "/")
-        payload += String(repeating: "=", count: (4 - payload.count % 4) % 4)
-        guard let data = Data(base64Encoded: payload),
-              let object = try? JSONSerialization.jsonObject(with: data) as? [String: Any] else { return nil }
-        return object["role"] as? String
+    private static func isAllowedURL(_ value: URL) -> Bool {
+        value.scheme == "https" || ((value.host == "127.0.0.1" || value.host == "localhost") && value.scheme == "http")
+    }
+
+    private static func isPublicKey(_ value: String) -> Bool {
+        if value.hasPrefix("sb_publishable_") {
+            let suffix = value.dropFirst("sb_publishable_".count)
+            return !suffix.isEmpty && suffix.allSatisfy({ $0.isLetter || $0.isNumber || $0 == "-" || $0 == "_" })
+        }
+        let parts = value.split(separator: ".", omittingEmptySubsequences: false)
+        guard parts.count == 3, parts.allSatisfy({ !$0.isEmpty }),
+              let header = decodedJSONObject(String(parts[0])),
+              let payload = decodedJSONObject(String(parts[1])),
+              header["alg"] as? String != nil,
+              payload["role"] as? String == "anon",
+              decodedBase64URL(String(parts[2]))?.isEmpty == false else { return false }
+        return true
+    }
+
+    private static func decodedJSONObject(_ value: String) -> [String: Any]? {
+        guard let data = decodedBase64URL(value) else { return nil }
+        return try? JSONSerialization.jsonObject(with: data) as? [String: Any]
+    }
+
+    private static func decodedBase64URL(_ value: String) -> Data? {
+        guard !value.isEmpty, value.allSatisfy({ $0.isLetter || $0.isNumber || $0 == "-" || $0 == "_" }) else { return nil }
+        var base64 = value.replacingOccurrences(of: "-", with: "+").replacingOccurrences(of: "_", with: "/")
+        base64 += String(repeating: "=", count: (4 - base64.count % 4) % 4)
+        return Data(base64Encoded: base64)
     }
 }
 
@@ -50,7 +77,7 @@ struct ControlledExperience: Codable, Identifiable, Equatable {
     let actualID: UUID?
     let title: String
     let description: String?
-    let categoryKey: String
+    let categoryKey: String?
     let projectID: UUID?
     let taskIDs: [UUID]
     let intendedStartsAt: Date?
@@ -99,6 +126,7 @@ enum ExperienceControlError: Error, Equatable, LocalizedError {
 }
 
 protocol ExperienceControl: AnyObject {
+    func hasStoredSession() -> Bool
     func restoreSession() async throws -> Bool
     func requestSignIn(email: String) async throws
     func completeSignIn(callbackURL: URL) async throws
@@ -154,10 +182,17 @@ final class URLSessionExperienceTransport: ExperienceHTTPTransport {
             let (data, response) = try await session.data(for: request)
             guard let http = response as? HTTPURLResponse else { throw ExperienceControlError.ambiguous("jOS returned no HTTP response.") }
             return (data, http)
-        } catch let error as URLError where [.notConnectedToInternet, .networkConnectionLost, .cannotConnectToHost, .cannotFindHost].contains(error.code) {
-            throw ExperienceControlError.offline("jOS is offline. Nothing was queued.")
+        } catch let error as URLError {
+            throw Self.classify(error)
         } catch let error as ExperienceControlError { throw error }
         catch { throw ExperienceControlError.ambiguous("The result is uncertain. Reload authoritative state before a deliberate retry.") }
+    }
+
+    static func classify(_ error: URLError) -> ExperienceControlError {
+        if [.notConnectedToInternet, .cannotConnectToHost, .cannotFindHost].contains(error.code) {
+            return .offline("jOS is offline. Nothing was sent or queued.")
+        }
+        return .ambiguous("The connection ended after the request may have been sent. Authoritative state must be reloaded before a deliberate retry.")
     }
 }
 
@@ -186,6 +221,8 @@ final class SupabaseExperienceControl: ExperienceControl {
         encoder.dateEncodingStrategy = .iso8601
     }
 
+    func hasStoredSession() -> Bool { (try? secureStore.read(account: sessionAccount)) != nil }
+
     func restoreSession() async throws -> Bool {
         guard let data = try secureStore.read(account: sessionAccount) else { return false }
         var restored = try decoder.decode(ExperienceControlSession.self, from: data)
@@ -200,8 +237,13 @@ final class SupabaseExperienceControl: ExperienceControl {
         let verifier = Self.pkceVerifier()
         try secureStore.save(Data(verifier.utf8), account: pkceAccount)
         let challenge = Data(SHA256.hash(data: Data(verifier.utf8))).base64URLEncodedString()
-        var request = try makeRequest(path: "/auth/v1/otp", method: "POST", authenticated: false)
-        request.httpBody = try JSONSerialization.data(withJSONObject: ["email": normalized, "create_user": false, "email_redirect_to": configuration.callbackURL.absoluteString, "code_challenge": challenge, "code_challenge_method": "s256"])
+        var request = try makeRequest(
+            path: "/auth/v1/otp",
+            method: "POST",
+            authenticated: false,
+            queryItems: [URLQueryItem(name: "redirect_to", value: configuration.callbackURL.absoluteString)]
+        )
+        request.httpBody = try JSONSerialization.data(withJSONObject: ["email": normalized, "create_user": false, "code_challenge": challenge, "code_challenge_method": "s256"])
         _ = try await send(request, expected: 200..<300)
     }
 
@@ -267,8 +309,11 @@ final class SupabaseExperienceControl: ExperienceControl {
         do { return try decoder.decode(type, from: data) } catch { throw ExperienceControlError.server("jOS returned an invalid \(name) response.") }
     }
 
-    private func makeRequest(path: String, method: String, authenticated: Bool = true) throws -> URLRequest {
-        guard let url = URL(string: path, relativeTo: configuration.supabaseURL) else { throw ExperienceControlError.configuration("Invalid jOS endpoint.") }
+    private func makeRequest(path: String, method: String, authenticated: Bool = true, queryItems: [URLQueryItem] = []) throws -> URLRequest {
+        guard let relativeURL = URL(string: path, relativeTo: configuration.supabaseURL),
+              var components = URLComponents(url: relativeURL, resolvingAgainstBaseURL: true) else { throw ExperienceControlError.configuration("Invalid jOS endpoint.") }
+        if !queryItems.isEmpty { components.queryItems = (components.queryItems ?? []) + queryItems }
+        guard let url = components.url else { throw ExperienceControlError.configuration("Invalid jOS endpoint.") }
         var request = URLRequest(url: url); request.httpMethod = method
         request.setValue(configuration.publishableKey, forHTTPHeaderField: "apikey"); request.setValue("application/json", forHTTPHeaderField: "Content-Type")
         if authenticated {
@@ -323,15 +368,17 @@ final class SupabaseExperienceControl: ExperienceControl {
 final class InMemoryExperienceControl: ExperienceControl {
     var hasSession = false, workspaces: [ExperienceWorkspace] = []
     var activeWorkspaceID: UUID?, value: ExperienceControlSnapshot?, nextError: ExperienceControlError?
+    var workspaceError: ExperienceControlError?, valueAfterCommandError: ExperienceControlSnapshot?
     var requests: [(kind: String, requestID: UUID)] = []
+    func hasStoredSession() -> Bool { hasSession }
     func restoreSession() async throws -> Bool { hasSession }
     func requestSignIn(email: String) async throws { requests.append(("sign-in", UUID())) }
     func completeSignIn(callbackURL: URL) async throws { hasSession = true }
-    func writablePersonalWorkspaces() async throws -> [ExperienceWorkspace] { workspaces }
+    func writablePersonalWorkspaces() async throws -> [ExperienceWorkspace] { if let workspaceError { throw workspaceError }; return workspaces }
     func bind(workspaceID: UUID) async throws { activeWorkspaceID = workspaceID }
     func snapshot(windowStart: Date, windowEnd: Date) async throws -> ExperienceControlSnapshot { if let nextError { self.nextError = nil; throw nextError }; guard let value else { throw ExperienceControlError.server("No in-memory snapshot.") }; return value }
-    func start(experienceID: UUID, expectedOpenActualID: UUID?, at: Date, requestID: UUID) async throws -> ExperienceCommandResult { requests.append(("start", requestID)); if let nextError { self.nextError = nil; throw nextError }; return ExperienceCommandResult(experienceID: experienceID, actualID: UUID(), eventID: UUID(), source: "jos.mac.menu.v1") }
-    func stop(experienceID: UUID, expectedActualID: UUID, at: Date, requestID: UUID) async throws -> ExperienceCommandResult { requests.append(("stop", requestID)); if let nextError { self.nextError = nil; throw nextError }; return ExperienceCommandResult(experienceID: experienceID, actualID: expectedActualID, eventID: UUID(), source: "jos.mac.menu.v1") }
+    func start(experienceID: UUID, expectedOpenActualID: UUID?, at: Date, requestID: UUID) async throws -> ExperienceCommandResult { requests.append(("start", requestID)); if let nextError { self.nextError = nil; if let valueAfterCommandError { value = valueAfterCommandError }; throw nextError }; return ExperienceCommandResult(experienceID: experienceID, actualID: UUID(), eventID: UUID(), source: "jos.mac.menu.v1") }
+    func stop(experienceID: UUID, expectedActualID: UUID, at: Date, requestID: UUID) async throws -> ExperienceCommandResult { requests.append(("stop", requestID)); if let nextError { self.nextError = nil; if let valueAfterCommandError { value = valueAfterCommandError }; throw nextError }; return ExperienceCommandResult(experienceID: experienceID, actualID: expectedActualID, eventID: UUID(), source: "jos.mac.menu.v1") }
     func signOut() async throws { hasSession = false; activeWorkspaceID = nil }
 }
 
