@@ -364,6 +364,12 @@ final class ExperienceReadModelTests: XCTestCase {
         XCTAssertEqual(emptyModel.state, .unauthorized("No authorized jOS workspace is available."))
         XCTAssertTrue(emptyModel.hasRetainedSession)
 
+        let zero = readyReader(plannedCount: 0)
+        let zeroModel = ExperienceReadModel(reader: zero)
+        await zeroModel.start()
+        guard case .synced = zeroModel.state else { return XCTFail("zero-row workspace did not load") }
+        XCTAssertEqual(zeroModel.snapshot?.planned.count, 0)
+
         let one = readyReader(plannedCount: 1)
         let oneModel = ExperienceReadModel(reader: one)
         await oneModel.start()
