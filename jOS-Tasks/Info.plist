@@ -7,11 +7,11 @@
 	<key>CFBundleGetInfoString</key>
 	<string></string>
 	<key>JOSSupabaseKey</key>
-	<string>$(JOS_SUPABASE_KEY)</string>
+	<string>sb_publishable_RICvY5OOu10oqf3zIGOMxQ_X0gxKfdn</string>
 	<key>JOSSupabaseKeySHA256</key>
-	<string>$(JOS_SUPABASE_KEY_SHA256)</string>
+	<string>6085d6a8873764fbfa84eba89f75fed6d8c7ca8bdcb0a68d7347c99a8e573a8e</string>
 	<key>JOSSupabaseURL</key>
-	<string>$(JOS_SUPABASE_URL)</string>
+	<string>https://vbftezqpqqomjyadlnap.supabase.co</string>
 	<key>ITSAppUsesNonExemptEncryption</key>
 	<false/>
 </dict>

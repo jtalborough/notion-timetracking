@@ -153,13 +153,25 @@ final class ExperienceReadModel: ObservableObject {
         }
         switch value {
         case .unauthorized:
-            state = .unauthorized(value.localizedDescription)
+            if hasRetainedSession {
+                state = .unauthorized(value.localizedDescription)
+            } else {
+                clearWorkspaceView()
+                state = .signedOut(value.localizedDescription)
+            }
         case .offline:
             state = .offline(value.localizedDescription)
         case .malformedLocalSession:
             clearAll()
             state = .signedOut(value.localizedDescription)
-        case .invalidCallback, .configuration, .server:
+        case .invalidCallback:
+            if hasRetainedSession {
+                state = snapshot == nil ? .failure(value.localizedDescription) : .stale(value.localizedDescription)
+            } else {
+                clearWorkspaceView()
+                state = .signedOut(value.localizedDescription)
+            }
+        case .configuration, .server:
             state = snapshot == nil ? .failure(value.localizedDescription) : .stale(value.localizedDescription)
         }
     }

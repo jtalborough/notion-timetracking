@@ -498,9 +498,6 @@
 				LD_RUNPATH_SEARCH_PATHS = "@executable_path/Frameworks";
 				"LD_RUNPATH_SEARCH_PATHS[sdk=macosx*]" = "@executable_path/../Frameworks";
 				MACOSX_DEPLOYMENT_TARGET = 26.0;
-				JOS_SUPABASE_KEY = "";
-				JOS_SUPABASE_KEY_SHA256 = "";
-				JOS_SUPABASE_URL = "";
 				MARKETING_VERSION = 0.65.0;
 				PRODUCT_BUNDLE_IDENTIFIER = jta.jos.tasks;
 				"PRODUCT_BUNDLE_IDENTIFIER[sdk=macosx*]" = jta.jos.tasks.macos;
@@ -544,9 +541,6 @@
 				LD_RUNPATH_SEARCH_PATHS = "@executable_path/Frameworks";
 				"LD_RUNPATH_SEARCH_PATHS[sdk=macosx*]" = "@executable_path/../Frameworks";
 				MACOSX_DEPLOYMENT_TARGET = 26.0;
-				JOS_SUPABASE_KEY = "";
-				JOS_SUPABASE_KEY_SHA256 = "";
-				JOS_SUPABASE_URL = "";
 				MARKETING_VERSION = 0.65.0;
 				PRODUCT_BUNDLE_IDENTIFIER = jta.jos.tasks;
 				"PRODUCT_BUNDLE_IDENTIFIER[sdk=macosx*]" = jta.jos.tasks.macos;

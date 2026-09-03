@@ -33,19 +33,10 @@ struct ExperienceReadConfiguration: Equatable {
         self.trustedCredentialSHA256 = normalizedFingerprint
     }
 
-    static func bundled(
-        bundle: Bundle = .main,
-        environment: [String: String] = ProcessInfo.processInfo.environment
-    ) throws -> Self {
-        let urlValue = environment["JOS_SUPABASE_URL"]
-            ?? bundle.object(forInfoDictionaryKey: "JOSSupabaseURL") as? String
-            ?? ""
-        let keyValue = environment["JOS_SUPABASE_KEY"]
-            ?? bundle.object(forInfoDictionaryKey: "JOSSupabaseKey") as? String
-            ?? ""
-        let fingerprint = environment["JOS_SUPABASE_KEY_SHA256"]
-            ?? bundle.object(forInfoDictionaryKey: "JOSSupabaseKeySHA256") as? String
-            ?? ""
+    static func bundled(bundle: Bundle = .main) throws -> Self {
+        let urlValue = bundle.object(forInfoDictionaryKey: "JOSSupabaseURL") as? String ?? ""
+        let keyValue = bundle.object(forInfoDictionaryKey: "JOSSupabaseKey") as? String ?? ""
+        let fingerprint = bundle.object(forInfoDictionaryKey: "JOSSupabaseKeySHA256") as? String ?? ""
         guard let url = URL(string: urlValue) else {
             throw ExperienceReadError.configuration("A valid jOS Supabase URL is required.")
         }
@@ -427,8 +418,8 @@ final class SupabaseExperienceReader: ExperienceReading {
               items.count == 1,
               items[0].name == "code",
               let code = items[0].value,
-              !code.isEmpty,
-              code == code.trimmingCharacters(in: .whitespacesAndNewlines),
+              Self.isCanonicalOAuthCode(code),
+              components.percentEncodedQuery == "code=\(code)",
               let verifierData = try secureStore.read(account: pkceAccount),
               let verifier = String(data: verifierData, encoding: .utf8),
               !verifier.isEmpty else { throw ExperienceReadError.invalidCallback }
@@ -557,7 +548,7 @@ final class SupabaseExperienceReader: ExperienceReading {
         var request = try makeRequest(.refreshToken)
         request.httpBody = try JSONSerialization.data(withJSONObject: ["refresh_token": current.refreshToken])
         let (data, response) = try await transport.data(for: request)
-        if response.statusCode == 400 || response.statusCode == 401 {
+        if Self.isAuthoritativeRefreshInvalidation(data, statusCode: response.statusCode) {
             try secureStore.delete(account: sessionAccount)
             session = nil
             workspaceID = nil
@@ -570,6 +561,31 @@ final class SupabaseExperienceReader: ExperienceReading {
         catch {
             throw ExperienceReadError.server("Session refresh returned an invalid response; the saved session was kept.")
         }
+    }
+
+    private static func isCanonicalOAuthCode(_ value: String) -> Bool {
+        guard !value.isEmpty, value.utf8.count <= 2048 else { return false }
+        return value.unicodeScalars.allSatisfy { scalar in
+            switch scalar.value {
+            case 48...57, 65...90, 97...122, 45, 46, 95, 126:
+                return true
+            default:
+                return false
+            }
+        }
+    }
+
+    private static func isAuthoritativeRefreshInvalidation(_ data: Data, statusCode: Int) -> Bool {
+        guard statusCode == 400 || statusCode == 401,
+              let payload = try? JSONSerialization.jsonObject(with: data) as? [String: Any],
+              let code = payload["error_code"] as? String else { return false }
+        return Set([
+            "refresh_token_not_found",
+            "refresh_token_already_used",
+            "refresh_token_reuse_detected",
+            "session_not_found",
+            "session_expired"
+        ]).contains(code)
     }
 
     private func persistAuthResponse(_ data: Data) throws -> ExperienceReadSession {
@@ -622,12 +638,16 @@ final class InMemoryExperienceReader: ExperienceReading {
     var value: ExperienceReadSnapshot?
     var nextError: ExperienceReadError?
     var workspaceError: ExperienceReadError?
+    var callbackError: ExperienceReadError?
     private(set) var snapshotCalls = 0
 
     func hasStoredSession() -> Bool { hasSession }
     func restoreSession() async throws -> Bool { hasSession }
     func requestSignIn(email: String) async throws {}
-    func completeSignIn(callbackURL: URL) async throws { hasSession = true }
+    func completeSignIn(callbackURL: URL) async throws {
+        if let callbackError { throw callbackError }
+        hasSession = true
+    }
     func authorizedWorkspaces() async throws -> [ReadableWorkspace] {
         if let workspaceError { throw workspaceError }
         return workspaces

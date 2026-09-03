@@ -48,6 +48,23 @@ final class ExperienceReadAdapterTests: XCTestCase {
         )
     }
 
+    func testBundledConfigurationPinsProductionTrustAndIgnoresRuntimeOverrides() throws {
+        setenv("JOS_SUPABASE_URL", "https://attacker.supabase.co", 1)
+        setenv("JOS_SUPABASE_KEY", "sb_publishable_abcdefghijklmnopqrstuvwxyz012345", 1)
+        setenv("JOS_SUPABASE_KEY_SHA256", ExperienceReadConfiguration.fingerprint(for: "sb_publishable_abcdefghijklmnopqrstuvwxyz012345"), 1)
+        defer {
+            unsetenv("JOS_SUPABASE_URL")
+            unsetenv("JOS_SUPABASE_KEY")
+            unsetenv("JOS_SUPABASE_KEY_SHA256")
+        }
+
+        let bundled = try ExperienceReadConfiguration.bundled()
+        XCTAssertEqual(bundled.supabaseURL.absoluteString, "https://vbftezqpqqomjyadlnap.supabase.co")
+        XCTAssertEqual(bundled.trustedCredentialSHA256, "6085d6a8873764fbfa84eba89f75fed6d8c7ca8bdcb0a68d7347c99a8e573a8e")
+        XCTAssertEqual(ExperienceReadConfiguration.fingerprint(for: bundled.publishableKey), bundled.trustedCredentialSHA256)
+        XCTAssertThrowsError(try ExperienceReadConfiguration.bundled(bundle: Bundle(for: ExperienceReadAdapterTests.self)))
+    }
+
     func testConfigurationRequiresExactTrustAnchorAndPublicCredentialStructure() throws {
         XCTAssertNoThrow(try ExperienceReadConfiguration(
             supabaseURL: URL(string: "https://project-ref.supabase.co")!,
@@ -119,6 +136,14 @@ final class ExperienceReadAdapterTests: XCTestCase {
             "jos://auth/callback?code=x&extra=y",
             "jos://auth/callback?code=x&code=y",
             "jos://auth/callback?code=x#fragment",
+            "jos://auth/callback?code=abc%00def",
+            "jos://auth/callback?code=abc%0Adef",
+            "jos://auth/callback?code=abc%09def",
+            "jos://auth/callback?code=%E2%80%A8",
+            "jos://auth/callback?code=%41BC",
+            "jos://auth/callback?code=abc%2Ddef",
+            "jos://auth/callback?code=abc+def",
+            "jos://auth/callback?code=%FF",
             "jos://user@auth/callback?code=x",
             "jos://auth:42/callback?code=x",
             "jos://auth/other?code=x",
@@ -140,7 +165,7 @@ final class ExperienceReadAdapterTests: XCTestCase {
         store.values["pkce-verifier"] = Data("verifier".utf8)
         let transport = ScriptedReadTransport([.response(200, authJSON())])
         let reader = SupabaseExperienceReader(configuration: configuration, secureStore: store, transport: transport)
-        try await reader.completeSignIn(callbackURL: URL(string: "jos://auth/callback?code=one_value")!)
+        try await reader.completeSignIn(callbackURL: URL(string: "jos://auth/callback?code=abc-DEF_123.~")!)
         XCTAssertNotNil(store.values["supabase-session"])
         XCTAssertNil(store.values["pkce-verifier"])
         XCTAssertEqual(transport.requests.first?.url?.path, "/auth/v1/token")
@@ -157,7 +182,13 @@ final class ExperienceReadAdapterTests: XCTestCase {
     }
 
     func testServerAndMalformedRefreshKeepStoredSession() async throws {
-        for step in [ScriptedReadTransport.Step.response(503, "{}"), .response(200, "{}") ] {
+        for step in [
+            ScriptedReadTransport.Step.response(503, "{}"),
+            .response(200, "{}"),
+            .response(400, "{\"message\":\"proxy rejection\"}"),
+            .response(400, "not-json"),
+            .response(401, "{\"error_code\":\"gateway_timeout\"}")
+        ] {
             let store = try sessionStore(expired: true)
             let reader = SupabaseExperienceReader(
                 configuration: configuration,
@@ -171,15 +202,20 @@ final class ExperienceReadAdapterTests: XCTestCase {
     }
 
     func testAuthoritativeRefreshInvalidationClearsStoredSession() async throws {
-        let store = try sessionStore(expired: true)
-        let reader = SupabaseExperienceReader(
-            configuration: configuration,
-            secureStore: store,
-            transport: ScriptedReadTransport([.response(400, "{\"error_code\":\"refresh_token_not_found\"}")])
-        )
-        do { _ = try await reader.restoreSession(); XCTFail("revoked refresh succeeded") }
-        catch { XCTAssertEqual(error as? ExperienceReadError, .unauthorized("The jOS session expired. Sign in again.")) }
-        XCTAssertNil(store.values["supabase-session"])
+        for response in [
+            ScriptedReadTransport.Step.response(400, "{\"error_code\":\"refresh_token_not_found\"}"),
+            .response(401, "{\"error_code\":\"session_not_found\"}")
+        ] {
+            let store = try sessionStore(expired: true)
+            let reader = SupabaseExperienceReader(
+                configuration: configuration,
+                secureStore: store,
+                transport: ScriptedReadTransport([response])
+            )
+            do { _ = try await reader.restoreSession(); XCTFail("revoked refresh succeeded") }
+            catch { XCTAssertEqual(error as? ExperienceReadError, .unauthorized("The jOS session expired. Sign in again.")) }
+            XCTAssertNil(store.values["supabase-session"])
+        }
     }
 
     func testMalformedLocalSessionIsTheOnlyLocalDecodeClear() async throws {
@@ -396,6 +432,35 @@ final class ExperienceReadModelTests: XCTestCase {
         await model.recover()
         guard case .synced = model.state else { return XCTFail("reload did not recover") }
         XCTAssertEqual(reader.snapshotCalls, 3)
+    }
+
+    func testNoSessionAuthFailuresRenderReachableSignInRecovery() async throws {
+        let reader = readyReader(plannedCount: 1)
+        let model = ExperienceReadModel(reader: reader)
+        await model.start()
+        reader.hasSession = false
+        reader.nextError = .unauthorized("Session revoked")
+        await model.reload()
+        XCTAssertEqual(model.state, .signedOut("Session revoked"))
+        XCTAssertFalse(model.hasRetainedSession)
+
+        model.email = "j@example.test"
+        let host = NSHostingView(rootView: ExperienceReadMenuView(model: model))
+        host.frame = NSRect(x: 0, y: 0, width: 380, height: 480)
+        let window = NSWindow(contentRect: host.frame, styleMask: [.borderless], backing: .buffered, defer: false)
+        window.contentView = host
+        window.makeKeyAndOrderFront(nil)
+        defer { window.close() }
+        host.layoutSubtreeIfNeeded()
+        try await _Concurrency.Task.sleep(for: .milliseconds(50))
+        host.layoutSubtreeIfNeeded()
+        XCTAssertTrue(allSubviews(of: host).contains { $0 is NSTextField && !$0.isHidden })
+
+        let invalidReader = InMemoryExperienceReader()
+        invalidReader.callbackError = .invalidCallback
+        let invalidModel = ExperienceReadModel(reader: invalidReader)
+        await invalidModel.handle(callbackURL: URL(string: "jos://auth/callback?code=bad")!)
+        XCTAssertEqual(invalidModel.state, .signedOut(ExperienceReadError.invalidCallback.localizedDescription))
     }
 
     func testTwentyFourRowsOverflowInsideFixedMenuAndRemainScrollable() async throws {
